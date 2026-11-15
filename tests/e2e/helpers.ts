@@ -63,6 +63,9 @@ export async function expectTextSizes(page: Page): Promise<void> {
 export async function expectNoAxeViolations(page: Page): Promise<void> {
   for (const theme of ['light', 'dark'] as const) {
     await page.evaluate((t) => document.documentElement.setAttribute('data-theme', t), theme);
+    // Colour transitions can still be mid-flight right after a theme switch, which axe reads as low contrast.
+    await page.addStyleTag({ content: '*, *::before, *::after { transition: none !important; animation: none !important; }' });
+    await page.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
     const results = await new AxeBuilder({ page }).analyze();
     const summary = results.violations.map(
       (v) => `${v.id}: ${v.nodes.map((n) => n.target.join(' ')).join(', ')}`,
