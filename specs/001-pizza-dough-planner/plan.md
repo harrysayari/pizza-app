@@ -32,7 +32,7 @@ A phone-first web page that turns four taps (pizza size, number of pizzas, bake 
 
 *GATE: Must pass before Phase 0 research. Re-checked after Phase 1 design.*
 
-Constitution v1.1.1.
+Constitution v1.2.1.
 
 | Principle | Status | How the plan satisfies it |
 |-----------|--------|---------------------------|

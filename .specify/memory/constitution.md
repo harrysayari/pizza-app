@@ -1,3 +1,20 @@
+<!--
+SYNC IMPACT REPORT (temporary; remove before commit)
+Version change: 1.2.0 -> 1.2.1 (PATCH: wording clarification only, no change of meaning)
+Modified principles:
+  - IX. No Backend by Default: the reminder service exception now says a registration is deleted
+    once its reminder (and its single repeat) is sent or cancelled, and in any case within 24
+    hours AFTER ITS END TIME (it said "within 24 hours", which a fridge-rest reminder registered
+    a day ahead could not meet). The fixed message may be sent once more as one repeat,
+    5 minutes later.
+  - All other principles unchanged
+Added sections: none
+Removed sections: none
+Follow-up TODOs (outside this command's scope):
+  - Update "constitution v1.1.0 / v1.1.1 / v1.2.0" references to v1.2.1 in CLAUDE.md,
+    specs/001-pizza-dough-planner (spec.md, plan.md, tasks.md) and the feature 002 spec.
+  - Reword specs/001 FR-022 for feature 002 ("no delivery promise").
+-->
 # Pizza Dough Planner Constitution
 
 ## Core Principles
@@ -60,9 +77,22 @@ them.
 Rationale: taps are fast with wet hands, and a wrong guess should cost one tap, not a restart.
 
 ### IX. No Backend by Default
-The product MUST run as static files with no server component. It MUST NOT include analytics
-or third-party runtime services unless the constitution is first amended to allow them.
-Rationale: no backend means no accounts, no data to protect and nothing to keep running.
+The product MUST run as static files. It MUST NOT include analytics, accounts or third-party
+runtime services, and MUST NOT add any server component, except the single optional exception
+below. Any other server or service requires the constitution to be amended first.
+
+Exception, timer reminders: a small reminder service MAY exist for the optional "notify me when
+a timer ends" feature, and the browser's and phone's own notification channel MAY carry the
+message. The service MUST hold only an address for the phone's notification channel, the timer's
+end time and the step name. It MUST NOT receive a plan, a name, an email address, a location or
+any identifier used for analytics. It MUST delete a registration once its reminder (and its
+single repeat) is sent or cancelled, and in any case within 24 hours after its end time. It MUST
+keep no logs that link an address to a step or time, and MUST send only the fixed timer-end
+message, once and then at most once more as a single repeat 5 minutes later, to a phone that
+opted in. The product MUST work fully when the service is off, down or unreachable, and the
+user MUST be told in plain words, before agreeing, exactly what is sent.
+Rationale: no backend means no accounts, no data to protect and nothing to keep running. The
+exception is the smallest one that lets a locked phone be reminded, and it holds no plan data.
 
 ## Additional Constraints
 
@@ -74,10 +104,13 @@ Rationale: no backend means no accounts, no data to protect and nothing to keep 
   already governs new ones). Rationale: `specs/001-pizza-dough-planner/plan.md` and
   `research.md`.
 - Timer alerts (sound, vibration and the finished state) are guaranteed only while the page
-  is open. The product MUST NOT promise alerts on a locked or closed page. The calendar export
-  MUST add alarms for the end of each waiting step so a locked phone still reminds the user.
+  is open. With notifications turned on, the product MAY also send a system notification, but
+  delivery depends on the phone and network, so the product MUST NOT promise that any alert
+  arrives on a locked or closed page. The calendar export MUST add alarms for the end of each
+  waiting step so a locked phone still has a backup reminder.
 - User data (recipes, plans) MUST stay local to the device unless a spec explicitly adds sync
-  and defines its privacy behavior.
+  and defines its privacy behavior. The only data allowed to leave the device is the reminder
+  registration described in principle IX, and only after the user has turned notifications on.
 
 ## Development Workflow
 
@@ -100,4 +133,4 @@ open specs, plans and tasks MUST be checked for conflicts and updated. Complianc
 at each plan (Constitution Check) and each pull request. Runtime guidance for agents lives in
 `CLAUDE.md`.
 
-**Version**: 1.1.1 | **Ratified**: 2026-11-15 | **Last Amended**: 2026-11-15
+**Version**: 1.2.1 | **Ratified**: 2026-11-15 | **Last Amended**: 2026-11-15

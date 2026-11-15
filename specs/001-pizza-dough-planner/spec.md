@@ -180,7 +180,7 @@ The cook can close the page and return later to the same plan and timers, share 
 - **FR-019**: Users MUST be able to mute the sound at any time, and the choice MUST be remembered.
 - **FR-020**: "Keep screen on" MUST be on by default while a timer runs, and the product MUST tell the user if the device refuses it.
 - **FR-021**: If a countdown ended while the page was hidden or the phone locked, the alert MUST play when the user returns, with how long ago it ended.
-- **FR-022**: The product MUST NOT promise alerts on a locked or closed page.
+- **FR-022**: The product MUST NOT promise alerts on a locked or closed page. (Feature 002 replaces this with a "no delivery promise" rule, 002 FR-017, when notifications ship: even then no alert is promised, and calendar alarms stay the backup.)
 
 **Calendar**
 
@@ -242,4 +242,4 @@ The cook can close the page and return later to the same plan and timers, share 
 - The minimum lead time from the first step to the bake is about 22 hours at the default timings.
 - Day choices cover Tomorrow and the next six days.
 - Out of scope for this version: alerts on a locked or closed page (needs a server), a button that sets the phone's own timer, accounts and saved history, other pizza styles, imperial units and step photos.
-- Dependencies: the project design system and constitution (v1.1.1) apply to all screens.
+- Dependencies: the project design system and constitution (v1.2.1) apply to all screens.

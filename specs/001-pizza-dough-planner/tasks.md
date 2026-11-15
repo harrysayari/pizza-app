@@ -7,7 +7,7 @@ description: "Task list for the Pizza Dough Planner"
 
 **Input**: Design documents from `/specs/001-pizza-dough-planner/`
 
-**Prerequisites**: plan.md, spec.md, research.md, data-model.md, contracts/, quickstart.md. Constitution v1.1.1 applies to every task.
+**Prerequisites**: plan.md, spec.md, research.md, data-model.md, contracts/, quickstart.md. Constitution v1.2.1 applies to every task.
 
 **Tests**: Included. Constitution principle IV requires tests for each acceptance scenario, written first and seen failing before the code that satisfies them.
 

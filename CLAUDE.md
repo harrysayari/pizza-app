@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-Pizza Dough Planner: a static, offline-capable phone web app that plans one pizza dough recipe back from a bake time and walks the cook through the steps with timers. TypeScript, Vite, Vitest and Playwright. No runtime dependencies, no backend, no analytics (constitution v1.1.1). The feature spec, plan and task list are in `specs/001-pizza-dough-planner/`.
+Pizza Dough Planner: a static, offline-capable phone web app that plans one pizza dough recipe back from a bake time and walks the cook through the steps with timers. TypeScript, Vite, Vitest and Playwright. No runtime dependencies, no backend, no analytics (constitution v1.2.1). The feature spec, plan and task list are in `specs/001-pizza-dough-planner/`.
 
 ## Commands
 
@@ -42,7 +42,7 @@ Rules that tests enforce: tap targets at least 48 px and 8 px apart, body text 1
 
 Spec Kit v1.0.8 is installed with the `claude` integration (scripts in Python, `script: "py"`). Features are developed through slash-command skills in `.claude/skills/`, normally in this order:
 
-1. `/speckit-constitution`: fill in `.specify/memory/constitution.md` (filled in, v1.1.1). Run it again only to amend a principle.
+1. `/speckit-constitution`: fill in `.specify/memory/constitution.md` (filled in, v1.2.1). Run it again only to amend a principle.
 2. `/speckit-specify`: create a feature spec. Features are numbered sequentially (`feature_numbering: sequential`).
 3. `/speckit-clarify`: resolve underspecified areas in the spec.
 4. `/speckit-plan`: generate design artifacts (`plan.md`).
