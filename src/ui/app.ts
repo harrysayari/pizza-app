@@ -1,7 +1,9 @@
 import type { AppState, Screen, Store } from '../state/store';
 import { renderPlanScreen } from './screens/plan';
 import { renderScheduleScreen } from './screens/schedule';
+import { renderSettingsScreen, isSettingsOpen } from './screens/settings';
 import { renderStepsScreen } from './screens/steps';
+import { renderMenu, renderShareChoice } from './slots/menu';
 
 type Slot = string | Node;
 
@@ -40,7 +42,16 @@ function applyTheme(theme: AppState['preferences']['theme']): void {
 export function mountApp(root: HTMLElement, store: Store): () => void {
   const render = (state: AppState): void => {
     applyTheme(state.preferences.theme);
-    root.replaceChildren(screens[state.progress.screen](state));
+    if (isSettingsOpen()) {
+      root.replaceChildren(renderSettingsScreen(state));
+      return;
+    }
+    const screen = screens[state.progress.screen](state);
+    // US6: the settings menu is on every screen, and a waiting shared link is asked about at the top.
+    if (!screen.querySelector('[data-slot="menu"]')) append(screen, renderMenu());
+    const choice = renderShareChoice();
+    if (choice instanceof Node) (screen.querySelector('h1') ?? screen).after(choice);
+    root.replaceChildren(screen);
   };
   render(store.getState());
   return store.subscribe(render);
