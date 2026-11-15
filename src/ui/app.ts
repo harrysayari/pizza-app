@@ -1,6 +1,7 @@
 import type { AppState, Screen, Store } from '../state/store';
 import { renderPlanScreen } from './screens/plan';
 import { renderScheduleScreen } from './screens/schedule';
+import { renderStepsScreen } from './screens/steps';
 
 type Slot = string | Node;
 
@@ -26,9 +27,7 @@ function screenShell(name: Screen, title: string): HTMLElement {
 const screens: Record<Screen, (state: AppState) => HTMLElement> = {
   plan: renderPlanScreen,
   schedule: renderScheduleScreen,
-  steps(): HTMLElement {
-    return screenShell('steps', 'Step by step');
-  },
+  steps: renderStepsScreen,
 };
 
 function applyTheme(theme: AppState['preferences']['theme']): void {
