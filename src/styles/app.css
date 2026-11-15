@@ -1,0 +1,61 @@
+/* App layout only. No colours: those come from design/tokens.css and design/components.css.
+   Breakpoints follow design/reference/layout.md (custom properties cannot be used in media queries). */
+
+#app {
+  padding-left: max(var(--space-4), env(safe-area-inset-left, 0px));
+  padding-right: max(var(--space-4), env(safe-area-inset-right, 0px));
+  padding-top: max(var(--space-4), env(safe-area-inset-top, 0px));
+  padding-bottom: var(--space-7);
+}
+
+.screen {
+  display: grid;
+  gap: var(--space-5);
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.screen > h1 { margin-bottom: var(--space-2); }
+
+/* Step mode: one centred column, 560px then 640px. */
+.screen-steps { max-width: 480px; }
+
+@media (min-width: 431px) {
+  #app {
+    padding-left: max(var(--space-5), env(safe-area-inset-left, 0px));
+    padding-right: max(var(--space-5), env(safe-area-inset-right, 0px));
+  }
+}
+
+@media (min-width: 768px) {
+  .screen-plan,
+  .screen-schedule {
+    max-width: 960px;
+    grid-template-columns: repeat(2, minmax(0, 440px));
+    justify-content: center;
+    align-items: start;
+    column-gap: var(--space-6);
+  }
+  .screen-plan > h1,
+  .screen-schedule > h1 { grid-column: 1 / -1; }
+  .screen-steps { max-width: 560px; }
+}
+
+@media (min-width: 1024px) {
+  .screen-steps { max-width: 640px; }
+}
+
+/* Bottom action bar: fixed to the bottom edge, clear of the home indicator. */
+.action-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: var(--z-sticky);
+  display: flex;
+  justify-content: center;
+  padding: var(--space-3) max(var(--space-4), env(safe-area-inset-right, 0px))
+    calc(var(--space-3) + env(safe-area-inset-bottom, 0px)) max(var(--space-4), env(safe-area-inset-left, 0px));
+  background: var(--surface-ground);
+}
+.action-bar > * { width: 100%; max-width: 480px; }
