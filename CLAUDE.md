@@ -20,6 +20,8 @@ Node 22 or newer. Run `npm install` once.
 | `npm test` | Vitest unit tests in `tests/unit/` (jsdom) |
 | `npm run test:e2e` | Playwright in `tests/e2e/`, Chromium (Pixel 7) and WebKit (iPhone 14) at 390 px, fake clock, axe |
 
+The build uses a relative Vite base (`base: './'`), so `dist/` works at the site root or under a sub-path such as `/pizza/`. Keep every URL in the page, manifest and service worker relative (`check-budget.mjs` fails the build on a root-absolute one), and serve the app with a trailing slash (`/pizza/`).
+
 Run one unit test file: `npx vitest run tests/unit/schedule.test.ts`.
 Run one e2e spec: `E2E_PORT=4395 npx playwright test tests/e2e/steps.spec.ts` (add `--project=chromium` for one browser, `-g "text"` for one test). Playwright builds and serves `dist/` itself. Always set `E2E_PORT` to a free port so it never reuses a server left over from another run or worktree. On macOS WebKit only Option+Tab reaches buttons and radios, which `a11y.spec.ts` accounts for.
 

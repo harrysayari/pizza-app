@@ -136,6 +136,30 @@ for (const icon of manifest.icons ?? []) {
   }
 }
 
+// 3. The build must not assume it is served from the site root: the app is hosted under a sub-path
+//    (for example /pizza/), so every URL in the page, manifest and service worker must be relative.
+{
+  const html = readFileSync(join(DIST, 'index.html'), 'utf8');
+  for (const m of html.matchAll(/\b(?:src|href)="(\/[^"]*)"/g)) {
+    failures.push(`dist/index.html has a root-absolute URL: ${m[1]}`);
+  }
+  const css = readdirSync(join(DIST, 'assets')).filter((f) => f.endsWith('.css'));
+  for (const f of css) {
+    for (const m of readFileSync(join(DIST, 'assets', f), 'utf8').matchAll(/url\(\s*["']?(\/[^)"']+)/g)) {
+      failures.push(`dist/assets/${f} has a root-absolute url(): ${m[1]}`);
+    }
+  }
+  const built = JSON.parse(readFileSync(join(DIST, 'manifest.webmanifest'), 'utf8'));
+  for (const [key, value] of [['start_url', built.start_url], ['scope', built.scope], ...(built.icons ?? []).map((i) => ['icon', i.src])]) {
+    if (typeof value === 'string' && value.startsWith('/')) failures.push(`manifest ${key} is root-absolute: ${value}`);
+  }
+  const sw = readFileSync(join(DIST, 'sw.js'), 'utf8');
+  const list = JSON.parse(/const PRECACHE = (\[.*\]);/.exec(sw)?.[1] ?? '[]');
+  if (list.length === 0) failures.push('dist/sw.js has an empty precache list');
+  for (const url of list) if (url.startsWith('/')) failures.push(`sw.js precache entry is root-absolute: ${url}`);
+  console.log(`check-budget: base path ok (${list.length} precache entries, all relative)`);
+}
+
 if (failures.length > 0) {
   console.error('check-budget failed:');
   for (const f of failures) console.error('  ' + f);

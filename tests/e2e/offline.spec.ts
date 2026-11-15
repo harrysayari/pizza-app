@@ -44,14 +44,18 @@ test('load once, go offline, reload, plan and follow the steps', async ({ page, 
   await context.setOffline(false);
 });
 
-test('the manifest and its icons are served', async ({ request }) => {
-  const res = await request.get('/manifest.webmanifest');
+test('the manifest and its icons are served, with URLs relative to the manifest', async ({ request, baseURL }) => {
+  const manifestUrl = new URL('manifest.webmanifest', baseURL).href;
+  const res = await request.get(manifestUrl);
   expect(res.ok()).toBe(true);
   const m = await res.json();
   expect(m.name).toBe('Pizza Dough Planner');
   expect(m.display).toBe('standalone');
-  expect(m.start_url).toBe('/');
+  // Relative, so the app also works under a sub-path such as /pizza/.
+  expect(m.start_url).toBe('./');
+  expect(m.scope).toBe('./');
   for (const icon of m.icons as { src: string }[]) {
-    expect((await request.get(icon.src)).ok()).toBe(true);
+    expect(icon.src.startsWith('/')).toBe(false);
+    expect((await request.get(new URL(icon.src, manifestUrl).href)).ok()).toBe(true);
   }
 });

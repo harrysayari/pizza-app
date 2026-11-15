@@ -34,7 +34,7 @@ self.addEventListener('fetch', (event) => {
     caches.match(request, { ignoreSearch: isPage, ignoreVary: true }).then(
       (hit) =>
         hit ||
-        fetch(request).catch(() => (isPage ? caches.match('/', { ignoreVary: true }) : Response.error())),
+        fetch(request).catch(() => (isPage ? caches.match('./', { ignoreVary: true }) : Response.error())),
     ),
   );
 });
