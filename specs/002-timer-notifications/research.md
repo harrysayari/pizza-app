@@ -14,7 +14,7 @@ Decisions for the plan. Each fact is marked **Verified** (read from a primary so
 - **Alternatives considered**:
   - *Managed VPS (DreamHost)*: allows a long-running Node process with exact timers, but is a paid upgrade and an always-on server to maintain.
   - *A serverless platform with scheduled triggers*: precise and cheap, but a new account and a platform outside the project's hosting; needs an owner decision under principle IX.
-  - *A cron interval of 5 or 15 minutes on DreamHost*: works technically but cannot meet the 1 minute target; see R5.
+  - *A cron interval of 5 or 15 minutes on DreamHost*: works technically but cannot meet the 2 minute target; see R5.
 
 ## R2. How the service sends a push
 
@@ -40,7 +40,7 @@ Decisions for the plan. Each fact is marked **Verified** (read from a primary so
 ## R5. Timing
 
 - **Decision**: The cron job runs every minute and sends everything due (`end_at <= now`), so a reminder is up to 60 seconds late plus delivery time (usually seconds). Push messages are sent with a time-to-live of 10 minutes so a late message does not arrive as stale news.
-- **Consequence for the spec**: FR-027 and SC-005 say "within 1 minute". A once-a-minute scheduler can miss that by a few seconds. **Recommend changing both to "within 2 minutes"** (decision D2 in the plan). If DreamHost only allows 5 or 15 minute cron, the feature cannot meet either figure and the owner must choose a fallback (R1).
+- **Consequence for the spec**: FR-027 and SC-005 said "within 1 minute" and now say "within 2 minutes". A once-a-minute scheduler can miss that by a few seconds. **Recommend changing both to "within 2 minutes"** (decision D2 in the plan). If DreamHost only allows 5 or 15 minute cron, the feature cannot meet either figure and the owner must choose a fallback (R1).
 - The service never sends early: a reminder before the timer ends would mislead the cook.
 
 ## R6. Keeping the service safe without accounts

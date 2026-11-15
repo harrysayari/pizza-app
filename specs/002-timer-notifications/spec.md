@@ -71,12 +71,12 @@ A cook starts a timer, puts the phone down and the screen locks, or closes the b
 **Acceptance Scenarios**:
 
 1. **Given** notifications are on and the device is online, **When** a timer starts, resumes or gains a minute, **Then** its end time is registered with the reminder service, and nothing else about the plan is.
-2. **Given** a registered timer, **When** it ends while the app is closed or the phone is locked, **Then** a notification arrives within 1 minute of the end time.
+2. **Given** a registered timer, **When** it ends while the app is closed or the phone is locked, **Then** a notification arrives within 2 minutes of the end time.
 3. **Given** a registered timer, **When** the user pauses, finishes early, taps "Done, next step", starts another timer, or turns notifications off, **Then** the registration is cancelled and no notification arrives for the old end time.
 4. **Given** the reminder service cannot be reached when a timer starts, **When** the user continues, **Then** the timer still runs, the in-page alert and background notification still work, and the user is told once, in plain words, that the locked-phone reminder could not be set and calendar alarms are the backup.
 5. **Given** the user taps "Clear saved data" or turns notifications off, **When** the device is online, **Then** the service is asked to remove their delivery address and any waiting reminder.
 6. **Given** a notification arrives at the same moment the page is open and visible, **When** the page shows the alert, **Then** the user does not also see a notification.
-7. **Given** the poolish goes into the fridge (a wait of many hours), **When** the previous step is marked done, **Then** the planned end of the fridge rest is registered, and a notification arrives within 1 minute of that planned end even if the app was closed all day.
+7. **Given** the poolish goes into the fridge (a wait of many hours), **When** the previous step is marked done, **Then** the planned end of the fridge rest is registered, and a notification arrives within 2 minutes of that planned end even if the app was closed all day.
 8. **Given** a registered fridge rest, **When** the user marks it done early, changes the plan, or starts a new plan, **Then** the registration is cancelled and no notification arrives for the old end time.
 
 ---
@@ -155,7 +155,7 @@ Some browsers refuse notifications, the user may tap "Block", an iPhone tab need
 - **FR-024**: The service MUST send only the fixed timer-end message (and its single repeat), only to a phone that opted in through the app, and MUST refuse any other request.
 - **FR-025**: The explanation shown before the permission prompt MUST say in plain words what is sent to the reminder service and to the phone's notification channel, that nothing else about the plan is sent, and that it can be turned off at any time.
 - **FR-026**: If the reminder service cannot be reached, the product MUST keep the timer, the in-page alert and background notifications working, and MUST tell the user once, in plain words, that the locked-phone reminder could not be set and calendar alarms are the backup. It MUST NOT block or delay the user.
-- **FR-027**: With notifications on, a phone that is online and allows notifications MUST get the reminder within 1 minute of the wait's end time.
+- **FR-027**: With notifications on, a phone that is online and allows notifications MUST get the reminder within 2 minutes of the wait's end time.
 
 **Accessibility**
 
@@ -176,7 +176,7 @@ Some browsers refuse notifications, the user may tap "Block", an iPhone tab need
 - **SC-002**: A user can move on from a finished timer with one tap.
 - **SC-003**: A first-time user can turn notifications on in no more than 3 taps including the browser prompt, and no prompt appears before their first tap on the control.
 - **SC-004**: With notifications on and the app running in the background on a browser that allows it, the notification appears within 5 seconds of the timer end.
-- **SC-005**: With notifications on, a phone that is online and allows notifications gets the reminder within 1 minute of the end of a wait, including the fridge rest, even when the app is closed or the phone is locked.
+- **SC-005**: With notifications on, a phone that is online and allows notifications gets the reminder within 2 minutes of the end of a wait, including the fridge rest, even when the app is closed or the phone is locked.
 - **SC-006**: One wait end never produces more than one notification plus a single repeat 5 minutes later, never more than one alert on screen, no repeat once the user has opened the app or acted on the alert, and a cancelled wait never produces a notification.
 - **SC-007**: Where notifications are blocked or unavailable, or the reminder service is down, 100% of existing features still work, and the user sees the reason and one next step.
 - **SC-008**: No text in the product promises delivery of an alert, checked by an automated test.
@@ -189,7 +189,7 @@ Some browsers refuse notifications, the user may tap "Block", an iPhone tab need
 - **Constitution**: Principle IX, the timer-alert rule and the local-data rule were amended (v1.2.0, wording fixed in v1.2.1) to allow one optional reminder service with the data limits in FR-021 to FR-025. The plan must still include a Constitution Check against that exception.
 - **Feature 001 changes**: Feature 001 FR-022 ("MUST NOT promise alerts on a locked or closed page") and FR-029 ("MUST NOT send plans to any server") stay true in spirit. FR-017 here replaces the first with a "no delivery promise" rule, and the second is unchanged, because plans are never sent.
 - **Third-party channel**: Phones deliver the notification through their browser's or operating system's own notification service. That is outside our control, which is why delivery cannot be promised.
-- **Host fit is unverified**: The app is hosted as static files on DreamHost. Running the reminder service there, and how often a scheduled job can run, is unknown and must be checked during planning. The 1 minute target in FR-027 assumes a scheduler that can run every minute. If the host cannot do this, the plan must pick a different place to run it, and that is a decision for you.
+- **Host fit is unverified**: The app is hosted as static files on DreamHost. Running the reminder service there, and how often a scheduled job can run, is unknown and must be checked during planning. The 2 minute target in FR-027 assumes a scheduler that can run every minute. If the host cannot do this, the plan must pick a different place to run it, and that is a decision for you.
 - **Platform limits**: On iPhone, notifications only work for a page added to the home screen (iOS 16.4 or newer). On Android and desktop browsers they work from a normal tab once permission is given.
 - A wait is a step where the cook does nothing while time passes. Waits of 2 hours or less have a countdown timer; longer waits (the fridge rest) show "Come back at" with no countdown. The product still has one timer at a time, as in feature 001. Both kinds of wait get the alert and notification described here.
 - Mute applies to the in-page sound and to notification sound.

@@ -95,8 +95,8 @@ tests/unit/ , tests/e2e/      # new specs for each user story
 ## Decisions for the owner
 
 - **D1 (gate)**: Run spike S0 before building the service. If DreamHost cannot run a per-minute cron or reach the push services, choose: a different small host, a DreamHost VPS, or a coarser schedule with a relaxed promise.
-- **D2**: Relax FR-027 and SC-005 from "within 1 minute" to "within 2 minutes", because a per-minute sender can be up to a minute late. Recommended. The spec text has not been changed yet.
-- **D3**: Keep the added "Remind me in 15 min" action on the long-wait alert (flagged as my own addition).
+- **D2** (decided 2026-11-15, applied): FR-027 and SC-005 now say "within 2 minutes", because a per-minute sender can be up to a minute late.
+- **D3**: Keep the added "Remind me in 15 min" action on the long-wait alert (flagged as my own addition). The snooze also moves the service reminder (tasks T004, T009).
 - **D4**: Approve adding `minishlink/web-push` (service) and PHPUnit (dev).
 - **D5**: Whether to commit the 002 spec and constitution work now, and whether to use a branch.
 
