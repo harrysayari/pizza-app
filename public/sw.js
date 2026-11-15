@@ -1,6 +1,7 @@
 // Service worker: offline after the first load (constitution VII).
 // The build fills in PRECACHE (every emitted file) and the version in the cache name.
-// Cache first, then the network. No data leaves the device that the page would not send anyway.
+// Hashed files: stored copy first. The page and manifest: network first, stored copy when offline.
+// No data leaves the device that the page would not send anyway.
 
 const VERSION = '/*VERSION*/dev';
 const CACHE = `pdp-${VERSION}`;
@@ -96,13 +97,24 @@ self.addEventListener('fetch', (event) => {
   const request = event.request;
   if (request.method !== 'GET' || new URL(request.url).origin !== self.location.origin) return;
   const isPage = request.mode === 'navigate';
+  const isManifest = new URL(request.url).pathname.endsWith('/manifest.webmanifest');
+  // The page and the manifest keep the same name from build to build, so online they come from the
+  // network (always the newest), and from the stored copy only when the network fails (offline).
+  // Everything else has a hash in its name, which changes whenever the file does, so it is stored-first.
+  if (isPage || isManifest) {
+    event.respondWith(
+      fetch(request).catch(() =>
+        // A shared link (/?s=14&n=4...) is the same page, so pages match without the query.
+        caches
+          .match(request, { ignoreSearch: isPage, ignoreVary: true })
+          .then((hit) => hit || (isPage ? caches.match('./', { ignoreVary: true }) : undefined))
+          .then((hit) => hit || Response.error()),
+      ),
+    );
+    return;
+  }
   event.respondWith(
-    // A shared link (/?s=14&n=4...) is the same page, so pages match without the query.
     // ignoreVary: the preview server sends Vary: Origin, which module scripts would otherwise miss.
-    caches.match(request, { ignoreSearch: isPage, ignoreVary: true }).then(
-      (hit) =>
-        hit ||
-        fetch(request).catch(() => (isPage ? caches.match('./', { ignoreVary: true }) : Response.error())),
-    ),
+    caches.match(request, { ignoreVary: true }).then((hit) => hit || fetch(request).catch(() => Response.error())),
   );
 });
