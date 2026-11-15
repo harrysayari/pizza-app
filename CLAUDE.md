@@ -16,6 +16,7 @@ Node 22 or newer. Run `npm install` once.
 | `npm run build` | Writes `dist/` (runs `tokens` first), then `scripts/check-budget.mjs`: fails if gzipped JavaScript passes 50 KB or if the manifest or icon colours drift from `design/tokens.json` |
 | `npm run preview` | Serves `dist/` the way a host would (the service worker only registers in a build) |
 | `npm run tokens` | Regenerates `design/tokens.css` from `design/tokens.json` and checks contrast. Never hand-edit `tokens.css` |
+| `npm run deploy` | Runs lint, tests and the build, then uploads `dist/` over SFTP using `.env.deploy` (git-ignored; copy `.env.deploy.example`). `-- --dry-run` uploads nothing. Do not run it unless the user asks |
 | `npm run lint` | `tsc --noEmit` plus `scripts/check-style.mjs` (no literal colours under `src/`) |
 | `npm test` | Vitest unit tests in `tests/unit/` (jsdom) |
 | `npm run test:e2e` | Playwright in `tests/e2e/`, Chromium (Pixel 7) and WebKit (iPhone 14) at 390 px, fake clock, axe |

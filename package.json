@@ -12,7 +12,8 @@
     "preview": "vite preview",
     "lint": "tsc --noEmit && node scripts/check-style.mjs",
     "test": "vitest run",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "deploy": "node scripts/deploy.mjs"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.14.0",

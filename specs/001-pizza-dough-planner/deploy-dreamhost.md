@@ -7,7 +7,18 @@ The app is plain files in `dist/`. No WordPress, database or server code is invo
 1. `npm run lint && npm test && npm run build` (the build prints "check-budget: ok").
 2. The upload is the **contents** of `dist/`, including the hidden file `.htaccess`. Turn on "show hidden files" in your SFTP app, or the file is skipped and caching headers are missing.
 
-## Upload
+## Upload with the script (recommended)
+
+`npm run deploy` runs lint, the unit tests and the build, uploads `dist/` (hidden `.htaccess` included) over SFTP, then checks the live site.
+
+1. Copy `.env.deploy.example` to `.env.deploy` and fill in the SFTP host, user and the site folder (for example `pizza.ccc.com.au`). `.env.deploy` is git-ignored, and the script refuses to run if it has been committed.
+2. Log in with an SSH key (`SFTP_KEY_FILE`), or leave the password out and type it when asked. A stored `SFTP_PASSWORD` also works if the `sshpass` tool is installed. The password is never put on a command line or printed.
+3. `npm run deploy -- --dry-run` lists what would be uploaded and uploads nothing. `npm run deploy` asks "Upload now?" before it sends anything (`--yes` skips the question, `--skip-checks` skips lint and tests, `--no-build` uploads the existing `dist/`).
+4. The page and service worker are uploaded last, so visitors never see a page that points at files not there yet. Old hashed files in `assets/` are left in place; they are harmless and can be deleted by hand.
+5. With `SITE_URL` set, the script then checks that the home page and `sw.js` answer and that `sw.js` is sent with `Cache-Control: no-cache`.
+
+## Upload by hand
+
 
 1. In the DreamHost panel, Users, make or reuse an SFTP user for the account that owns the subdomain, and note the server name and the subdomain's folder (for example `pizza.example.com`, a folder in the user's home).
 2. Connect with an SFTP app (Cyberduck or FileZilla). Never put the password in the repo or in a chat.

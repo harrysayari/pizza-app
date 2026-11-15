@@ -3,3 +3,8 @@ dist/
 test-results/
 playwright-report/
 .DS_Store
+
+# SFTP settings for scripts/deploy.mjs (host, user, key or password): never committed
+.env.deploy
+.env.deploy.*
+!.env.deploy.example
