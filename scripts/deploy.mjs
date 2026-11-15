@@ -13,7 +13,7 @@
 //        --no-build     upload the existing dist/ as it is
 //        --env <file>   use another settings file
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createInterface } from 'node:readline/promises';
@@ -72,12 +72,19 @@ for (const needed of ['index.html', 'sw.js', 'manifest.webmanifest', '.htaccess'
   if (!existsSync(join(DIST, needed))) fail(`dist/${needed} is missing. Run the build first (without --no-build).`);
 }
 
-const files = listFiles(DIST);
-const bytes = files.reduce((sum, f) => sum + statSync(join(DIST, f)).size, 0);
+// Upload from a private copy of dist/. Every build gives the scripts new file names, so a build started
+// elsewhere (another terminal, a test run) while this upload runs would otherwise delete files that are
+// still on the list ("stat ...: No such file or directory", a half-updated site).
+const SRC = mkdtempSync(join(tmpdir(), 'pdp-src-'));
+process.on('exit', () => rmSync(SRC, { recursive: true, force: true }));
+cpSync(DIST, SRC, { recursive: true });
+
+const files = listFiles(SRC);
+const bytes = files.reduce((sum, f) => sum + statSync(join(SRC, f)).size, 0);
 console.log(`\ndeploy: ${files.length} files, ${(bytes / 1024).toFixed(0)} KB, to ${config.user}@${config.host}:${config.remoteDir} (port ${config.port})`);
 
 if (flag('--dry-run')) {
-  for (const line of buildBatch(files, DIST, config.remoteDir).trim().split('\n')) console.log('  ' + line.replace(DIST + '/', 'dist/'));
+  for (const line of buildBatch(files, SRC, config.remoteDir).trim().split('\n')) console.log('  ' + line.replace(SRC + '/', 'dist/'));
   console.log('\ndeploy: dry run, nothing uploaded.');
   process.exit(0);
 }
@@ -121,7 +128,7 @@ try {
   if (master.status !== 0) fail('could not connect. Check the host, user, port and key or password.');
 
   const batchFile = join(work, 'batch.txt');
-  writeFileSync(batchFile, buildBatch(files, DIST, config.remoteDir), { mode: 0o600 });
+  writeFileSync(batchFile, buildBatch(files, SRC, config.remoteDir), { mode: 0o600 });
   const sftp = run('sftp', ['-P', String(config.port), ...reuse, '-o', 'ControlMaster=no', '-b', batchFile, target]);
   if (sftp.status !== 0) {
     console.error('\ndeploy: the upload stopped with an error. The site may be half updated: run it again.');
