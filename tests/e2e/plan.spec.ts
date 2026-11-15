@@ -125,6 +125,28 @@ test('scenario 2: 12" and 1 pizza show one decimal for yeast and honey, whole gr
   await expect(page.getByRole('group', { name: 'Plan summary' })).toContainText('280 g');
 });
 
+// Added by lane J (T071): FR-001 and FR-002 had no direct test of the bounds.
+test('FR-001: exactly three sizes are offered, one tap each, and each sets the ball weight', async ({ page }) => {
+  await start(page);
+  const sizes = page.locator('fieldset', { hasText: 'Pizza size' }).locator('label.chip');
+  await expect(sizes).toHaveCount(3);
+  for (const [label, grams] of [['12"', '280 g'], ['16"', '350 g'], ['14"', '310 g']] as const) {
+    await chip(page, label).click();
+    await expect(chip(page, label).locator('input')).toBeChecked();
+    await expect(chip(page, label)).toContainText(grams);
+  }
+});
+
+test('FR-002: the stepper stops at 1 and counts by taps, with no typing', async ({ page }) => {
+  await start(page);
+  for (let i = 0; i < 3; i++) await page.getByRole('button', { name: 'One fewer pizza' }).click();
+  await expect(page.locator('.stepper-value')).toHaveText('1');
+  await expect(page.getByRole('button', { name: 'One fewer pizza' })).toBeDisabled();
+  await page.getByRole('button', { name: 'One more pizza' }).click();
+  await expect(page.locator('.stepper-value')).toHaveText('2');
+  await expect(page.locator('.stepper input[type=text], .stepper input[type=number]')).toHaveCount(0);
+});
+
 test('the stepper stops at 12', async ({ page }) => {
   await start(page);
   for (let i = 0; i < 8; i++) await page.getByRole('button', { name: 'One more pizza' }).click();
