@@ -13,7 +13,8 @@ import {
   type StepKind,
   type TimeChoiceId,
 } from './recipe';
-import type { Instant } from '../platform/clock';
+import { earliestReady, minimumLeadMinutes } from './earliest';
+import { localDateOf, type Instant } from '../platform/clock';
 
 const MINUTE_MS = 60_000;
 
@@ -47,7 +48,7 @@ export interface Plan {
   fridgeMinutes: number;
   steps: Step[];
   status: 'ok' | 'tooSoon';
-  /** Set by the too-soon story (earliest.ts); always null here. */
+  /** Set when `status` is `tooSoon` (earliest.ts), otherwise null. */
   earliest: { day: string; time: TimeChoiceId } | null;
 }
 
@@ -59,10 +60,7 @@ function stepMinutes(id: string, planning: number, fridgeMinutes: number): numbe
   return id === 'poolish-fridge' ? fridgeMinutes : planning;
 }
 
-/** Minutes from the first step to bake time with the fridge at its shortest (1313 by default). */
-export function minimumLeadMinutes(): number {
-  return STEPS.reduce((n, s) => n + stepMinutes(s.id, s.minutes, FRIDGE_RANGE[0]), 0);
-}
+export { minimumLeadMinutes };
 
 function parseDay(day: string): { y: number; m: number; d: number } {
   const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(day);
@@ -109,7 +107,13 @@ export function buildPlan(request: Request, now: Instant, opts: BuildOptions = {
   const [hh, mm] = choice.time.split(':').map(Number) as [number, number];
   const bakeAt = new Date(day.y, day.m - 1, day.d, hh, mm).getTime();
 
-  const fridgeMinutes = opts.fridgeMinutes ?? FRIDGE_DEFAULT_MINUTES;
+  // The fridge rest starts at 1080 and shortens toward 960 only as far as needed to keep the first
+  // step from being in the past. An explicit fridgeMinutes is used as given.
+  const available = Math.floor((bakeAt - now) / MINUTE_MS);
+  const fixedMinutes = minimumLeadMinutes() - FRIDGE_RANGE[0];
+  const fridgeMinutes =
+    opts.fridgeMinutes ??
+    Math.max(FRIDGE_RANGE[0], Math.min(FRIDGE_DEFAULT_MINUTES, available - fixedMinutes));
   const ball = ballGrams(request.size);
   const totalGrams = request.pizzas * ball;
   const scaled = scaleIngredients(totalGrams);
@@ -137,6 +141,7 @@ export function buildPlan(request: Request, now: Instant, opts: BuildOptions = {
   }
 
   const tooSoon = bakeAt - now < minimumLeadMinutes() * MINUTE_MS;
+  const earliest = tooSoon ? earliestReady(now, localDateOf(now)) : null;
   return {
     request: { ...request },
     bakeAt,
@@ -145,7 +150,7 @@ export function buildPlan(request: Request, now: Instant, opts: BuildOptions = {
     fridgeMinutes,
     steps,
     status: tooSoon ? 'tooSoon' : 'ok',
-    earliest: null,
+    earliest: earliest ? { day: earliest.day, time: earliest.time.id } : null,
   };
 }
 
