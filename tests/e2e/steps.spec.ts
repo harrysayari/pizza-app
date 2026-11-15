@@ -146,8 +146,7 @@ test('muted: no sound, but the finished state and vibration still appear', async
   expect(r.vibrate).toEqual([[200, 100, 200]]);
 });
 
-// The mute preference is saved by the persistence lane (US6, T055 onwards). Enable once that lands.
-test.fixme('muted stays muted on the next visit', async ({ page }) => {
+test('muted stays muted on the next visit', async ({ page }) => {
   await openSteps(page);
   await nextSteps(page, 1);
   await page.getByRole('button', { name: 'Mute sound' }).click();
