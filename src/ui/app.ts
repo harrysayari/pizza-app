@@ -1,8 +1,6 @@
 import type { AppState, Screen, Store } from '../state/store';
-import { renderMenu } from './slots/menu';
-import { renderCalendar, renderStartSteps } from './slots/schedule-actions';
-import { renderSentence } from './slots/sentence';
-import { renderTooSoon } from './slots/too-soon';
+import { renderPlanScreen } from './screens/plan';
+import { renderScheduleScreen } from './screens/schedule';
 
 type Slot = string | Node;
 
@@ -26,20 +24,8 @@ function screenShell(name: Screen, title: string): HTMLElement {
 
 // Screens are stubs here. Stories replace them with src/ui/screens/*.
 const screens: Record<Screen, (state: AppState) => HTMLElement> = {
-  plan(): HTMLElement {
-    const el = screenShell('plan', 'Pizza Dough Planner');
-    append(el, renderSentence());
-    append(el, renderTooSoon());
-    append(el, renderMenu());
-    return el;
-  },
-  schedule(): HTMLElement {
-    const el = screenShell('schedule', 'Your schedule');
-    append(el, renderTooSoon());
-    append(el, renderStartSteps());
-    append(el, renderCalendar());
-    return el;
-  },
+  plan: renderPlanScreen,
+  schedule: renderScheduleScreen,
   steps(): HTMLElement {
     return screenShell('steps', 'Step by step');
   },
