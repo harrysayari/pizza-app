@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import { STEPS, type PizzaSize, type TimeChoiceId } from '../../src/domain/recipe';
-import { buildPlan, minimumLeadMinutes, type Request } from '../../src/domain/schedule';
+import { buildPlan, minimumLeadMinutes, planParts, type Request } from '../../src/domain/schedule';
 
 // No @types/node in this project; only the TZ variable is used, to test daylight saving.
 declare const process: { env: Record<string, string | undefined> };
@@ -144,4 +144,38 @@ describe('daylight saving', () => {
       for (const s of p.steps) expect(s.endAt - s.startAt).toBe(minutesOf(s.id, 1080) * MIN);
     });
   }
+});
+
+describe('planParts (FR-041: the schedule in two parts, split at the fridge)', () => {
+  it('splits into Poolish (steps 1 to 4, ending with the fridge) and Final dough (steps 5 to 14)', () => {
+    const p = buildPlan(req(), NOW);
+    const parts = planParts(p);
+    expect(parts.map((x) => x.id)).toEqual(['poolish', 'final']);
+    expect(parts.map((x) => x.steps.length)).toEqual([4, 10]);
+    expect(parts[0]!.steps.at(-1)!.id).toBe('poolish-fridge');
+    expect(parts[1]!.steps[0]!.id).toBe('poolish-warm');
+    expect([...parts[0]!.steps, ...parts[1]!.steps]).toEqual(p.steps);
+  });
+
+  it('gives each part its hours: 19 hr 18 min before the final dough, 4 hr 35 min after', () => {
+    const [a, b] = planParts(buildPlan(req(), NOW));
+    expect(a!.minutes).toBe(3 + 15 + 60 + 1080);
+    expect(b!.minutes).toBe(60 + 5 + 5 + 15 + 10 + 15 + 5 + 60 + 10 + 90);
+  });
+
+  it('runs back to back: part one ends where part two starts, and part two ends at the bake time', () => {
+    const p = buildPlan(req(), NOW);
+    const [a, b] = planParts(p);
+    expect(a!.startAt).toBe(p.steps[0]!.startAt);
+    expect(a!.endAt).toBe(b!.startAt);
+    expect(b!.endAt).toBe(p.bakeAt);
+    expect(a!.minutes + b!.minutes).toBe(Math.round((p.bakeAt - p.steps[0]!.startAt) / MIN));
+  });
+
+  it('follows a shortened fridge rest', () => {
+    const p = buildPlan(req(), NOW, { fridgeMinutes: 960 });
+    const [a, b] = planParts(p);
+    expect(a!.minutes).toBe(78 + 960);
+    expect(b!.minutes).toBe(275);
+  });
 });

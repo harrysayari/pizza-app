@@ -227,6 +227,8 @@ description: "Task list for the Pizza Dough Planner"
 
 - [x] T078 Analysis finding C1: add `isLargeBatch` (over 3,000 g) to `src/domain/amounts.ts` and show a plain note on the schedule screen (`src/ui/screens/schedule.ts`), with unit tests in `tests/unit/amounts.test.ts` and e2e tests in `tests/e2e/plan.spec.ts`
 - [x] T079 Analysis finding C2: raise `.chip-sub` in `design/components.css` from 14px to 16px so ball weights meet `rules.md`, and make `expectTextSizes` check `.chip-sub`, `.ing-amount` and `.amount`
+- [x] T080 FR-041: add `planParts(plan)` to `src/domain/schedule.ts` (Poolish up to and including the fridge, then Final dough) with unit tests in `tests/unit/schedule.test.ts`
+- [x] T081 FR-041: show the steps on the schedule screen in two `details` groups with title, hours, start and end, plus a total line, with styles in `src/styles/app.css` (tokens only) and e2e tests in `tests/e2e/plan.spec.ts` (hours, open and close by tap and keyboard, state kept across a redraw, 48px headers, 16px text, axe)
 
 ---
 

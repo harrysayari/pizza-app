@@ -2,7 +2,7 @@
 
 import { formatGrams, isLargeBatch, scaleIngredients } from '../../domain/amounts';
 import type { IngredientGroup } from '../../domain/recipe';
-import { formatClock, formatDuration, formatWeekday, type Plan, type Step } from '../../domain/schedule';
+import { formatClock, formatDuration, formatWeekday, planParts, type PartId, type Plan, type Step } from '../../domain/schedule';
 import { systemClock } from '../../platform/clock';
 import { changeChoices, getPlan, preserveFocus, toggleTick } from '../../state/actions/plan';
 import type { AppState } from '../../state/store';
@@ -73,32 +73,60 @@ function amountsText(step: Step): string {
   return step.amounts.map((a) => `${formatGrams(a.grams)} ${a.name.toLowerCase()}`).join(', ');
 }
 
-function renderTimeline(plan: Plan, doneAt: Record<string, number>, now: number): HTMLElement {
-  const list = el('ol', 'timeline');
-  list.setAttribute('aria-label', `Schedule for a ${formatWeekday(plan.bakeAt)} ${formatClock(plan.bakeAt)} bake`);
-  let nowFound = false;
-  for (const step of plan.steps) {
-    let state: TimelineState = 'later';
-    if (doneAt[step.id] !== undefined) state = 'done';
-    else if (!nowFound && step.startAt <= now) state = 'now';
-    if (state !== 'done') nowFound = nowFound || state === 'now';
+// Which parts the cook has opened or closed. The whole screen is rebuilt on every state change,
+// so this lives here and is applied each time. Until a part is touched it follows the first undone step.
+const partOpen: Partial<Record<PartId, boolean>> = {};
 
-    const minutes = Math.round((step.endAt - step.startAt) / 60_000);
-    const details = [step.instruction];
-    if (step.amounts.length > 0) details.push(amountsText(step));
-    if (step.usesBallWeight) details.push(`Each ball weighs ${plan.ballGrams} g.`);
-    list.append(
-      renderTimelineItem({
-        clock: formatClock(step.startAt),
-        day: formatWeekday(step.startAt),
-        title: step.title,
-        details,
-        badges: [step.kind === 'wait' ? `Wait ${formatDuration(minutes)}` : formatDuration(minutes)],
-        state,
-      }),
+function windowText(startAt: number, endAt: number): string {
+  const sameDay = formatWeekday(startAt) === formatWeekday(endAt);
+  return `${formatWeekday(startAt)} ${formatClock(startAt)} to ${sameDay ? '' : `${formatWeekday(endAt)} `}${formatClock(endAt)}`;
+}
+
+function renderTimeline(plan: Plan, doneAt: Record<string, number>, now: number): HTMLElement {
+  const wrap = el('div', 'tl-groups');
+  wrap.setAttribute('aria-label', `Schedule for a ${formatWeekday(plan.bakeAt)} ${formatClock(plan.bakeAt)} bake`);
+  const firstUndone = plan.steps.find((s) => doneAt[s.id] === undefined)?.id;
+  let nowFound = false;
+  for (const part of planParts(plan)) {
+    const list = el('ol', 'timeline');
+    for (const step of part.steps) {
+      let state: TimelineState = 'later';
+      if (doneAt[step.id] !== undefined) state = 'done';
+      else if (!nowFound && step.startAt <= now) state = 'now';
+      if (state !== 'done') nowFound = nowFound || state === 'now';
+
+      const minutes = Math.round((step.endAt - step.startAt) / 60_000);
+      const details = [step.instruction];
+      if (step.amounts.length > 0) details.push(amountsText(step));
+      if (step.usesBallWeight) details.push(`Each ball weighs ${plan.ballGrams} g.`);
+      list.append(
+        renderTimelineItem({
+          clock: formatClock(step.startAt),
+          day: formatWeekday(step.startAt),
+          title: step.title,
+          details,
+          badges: [step.kind === 'wait' ? `Wait ${formatDuration(minutes)}` : formatDuration(minutes)],
+          state,
+        }),
+      );
+    }
+
+    const group = el('details', 'tl-group');
+    const holdsNext = firstUndone === undefined ? false : part.steps.some((s) => s.id === firstUndone);
+    group.open = partOpen[part.id] ?? holdsNext;
+    group.addEventListener('toggle', () => {
+      partOpen[part.id] = group.open;
+    });
+    const head = el('summary', 'tl-group-head');
+    head.append(
+      el('span', 'tl-group-title', part.title),
+      el('span', 'tl-group-hours', formatDuration(part.minutes)),
+      el('span', 'tl-group-window', windowText(part.startAt, part.endAt)),
     );
+    group.append(head, list);
+    wrap.append(group);
   }
-  return list;
+  return wrap;
 }
 
 export function renderScheduleScreen(state: AppState): HTMLElement {
@@ -138,7 +166,13 @@ export function renderScheduleScreen(state: AppState): HTMLElement {
   const right = el('div', 'stack');
   right.style.gap = 'var(--space-5)';
   append(right, renderTooSoon());
-  right.append(el('h2', undefined, 'Your steps'), renderTimeline(plan, state.doneAt, systemClock.now()));
+  const first = plan.steps[0];
+  const totalMinutes = first ? Math.round((plan.bakeAt - first.startAt) / 60_000) : 0;
+  right.append(
+    el('h2', undefined, 'Your steps'),
+    el('p', 'tl-total', `Total ${formatDuration(totalMinutes)}, ${first ? windowText(first.startAt, plan.bakeAt) : ''}`),
+    renderTimeline(plan, state.doneAt, systemClock.now()),
+  );
   append(right, renderStartSteps());
   append(right, renderCalendar());
 

@@ -59,3 +59,41 @@
   background: var(--surface-ground);
 }
 .action-bar > * { width: 100%; max-width: 480px; }
+
+/* Schedule: the steps in two collapsible parts (FR-041). Colours and sizes come from the tokens. */
+.tl-total { margin: 0; color: var(--ink-muted); }
+.tl-groups { display: grid; gap: var(--space-4); }
+.tl-group { border: 2px solid var(--border-strong); border-radius: var(--radius-lg); background: var(--surface-raised); }
+.tl-group > .timeline { padding: var(--space-3) var(--space-4) var(--space-4); }
+.tl-group-head {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  column-gap: var(--space-3);
+  row-gap: var(--space-1);
+  min-height: var(--tap-min);
+  padding: var(--space-3) var(--space-4);
+  cursor: pointer;
+  list-style: none;
+  font-size: 16px;
+  line-height: 24px;
+}
+.tl-group-head::-webkit-details-marker { display: none; }
+.tl-group-title { font-weight: 700; grid-column: 1; }
+.tl-group-hours { font-weight: 700; grid-column: 2; grid-row: 1; white-space: nowrap; }
+.tl-group-window { grid-column: 1; color: var(--ink-muted); }
+/* A chevron drawn with borders, so the open or closed state is shown by shape and not by colour alone. */
+.tl-group-head::after {
+  content: "";
+  grid-column: 2;
+  grid-row: 2;
+  justify-self: end;
+  width: 10px;
+  height: 10px;
+  border: solid currentColor;
+  border-width: 0 3px 3px 0;
+  transform: rotate(45deg);
+  transition: transform var(--motion-fast) var(--ease-out);
+}
+.tl-group[open] > .tl-group-head::after { transform: rotate(-135deg); }
+@media (prefers-reduced-motion: reduce) { .tl-group-head::after { transition: none; } }

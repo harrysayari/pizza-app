@@ -46,6 +46,7 @@ All 40 requirements have at least one test. Rows marked "added" had no direct te
 | FR-037 | Follow the design system and constitution | `npm run lint` (`check-style.mjs`, no literal colours); `check-budget.mjs` (manifest and icon colours match tokens); axe and size helpers | Component-by-component fidelity is review work |
 | FR-038 | New plan and clear data, both confirmed | `resume.spec.ts` US6.6 and US6.7; `persistence.test.ts` clearing | |
 | FR-039 | Missing saved data: start screen, shared link restores | `resume.spec.ts` "missing, broken or unknown saved data", "a link with a past or far day..." | |
+| FR-041 | Steps in two collapsible parts with hours | `schedule.test.ts` "planParts"; `plan.spec.ts` three "FR-041" tests (hours, open and close, redraw, 48 px, axe) | Added after the first analysis |
 | FR-040 | Fixed plan times, updated estimate, minutes ahead or behind | `estimate.test.ts`; `steps.spec.ts` scenario 7 | See "Observations" on an overdue current step |
 
 ## Success criteria with automated checks

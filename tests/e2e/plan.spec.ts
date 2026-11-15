@@ -154,6 +154,54 @@ test('the stepper stops at 12', async ({ page }) => {
   await expect(page.getByRole('button', { name: 'One more pizza' })).toBeDisabled();
 });
 
+// FR-041: the steps are grouped in two collapsible parts with their hours.
+test('FR-041: the steps come in two parts, each with its hours, split at the fridge', async ({ page }) => {
+  await planSaturdayDinner(page);
+  const parts = page.locator('details.tl-group');
+  await expect(parts).toHaveCount(2);
+  await expect(parts.nth(0).locator('summary')).toContainText('Part 1: Poolish');
+  await expect(parts.nth(0).locator('summary')).toContainText('19 hr 18 min');
+  await expect(parts.nth(0).locator('li.tl-item')).toHaveCount(4);
+  await expect(parts.nth(0).locator('li.tl-item').last().locator('.tl-title')).toHaveText('Into the fridge');
+  await expect(parts.nth(1).locator('summary')).toContainText('Part 2: Final dough');
+  await expect(parts.nth(1).locator('summary')).toContainText('4 hr 35 min');
+  await expect(parts.nth(1).locator('li.tl-item')).toHaveCount(10);
+  await expect(page.locator('li.tl-item')).toHaveCount(14);
+  await expect(page.getByText('Total 23 hr 53 min')).toBeVisible();
+});
+
+test('FR-041: each part opens and closes with a tap or the keyboard, and stays that way when the screen redraws', async ({ page }) => {
+  await planSaturdayDinner(page);
+  const parts = page.locator('details.tl-group');
+  const first = parts.nth(0);
+  await expect(first).toHaveAttribute('open', '');
+  await first.locator('summary').click();
+  await expect(first).not.toHaveAttribute('open', '');
+  await expect(first.locator('li.tl-item').first()).toBeHidden();
+  // Ticking an ingredient redraws the whole screen; the closed part must stay closed.
+  await page.locator('label.ing').first().click();
+  await expect(page.locator('details.tl-group').nth(0)).not.toHaveAttribute('open', '');
+  // Keyboard: focus the summary and press Enter.
+  await page.locator('details.tl-group').nth(0).locator('summary').focus();
+  await page.keyboard.press('Enter');
+  await expect(page.locator('details.tl-group').nth(0)).toHaveAttribute('open', '');
+});
+
+test('FR-041: part headers are at least 48px tall, text is 16px or more, and axe is clean in both themes', async ({ page }) => {
+  await planSaturdayDinner(page);
+  const heads = page.locator('details.tl-group > summary');
+  for (let i = 0; i < 2; i++) {
+    const box = (await heads.nth(i).boundingBox())!;
+    expect(box.height).toBeGreaterThanOrEqual(48);
+  }
+  const sizes = await page.locator('.tl-group-title, .tl-group-hours, .tl-group-window').evaluateAll(
+    (els) => els.map((e) => parseFloat(getComputedStyle(e).fontSize)),
+  );
+  expect(sizes.length).toBeGreaterThan(0);
+  for (const px of sizes) expect(px).toBeGreaterThanOrEqual(16);
+  await expectNoAxeViolations(page);
+});
+
 // Added for the analysis findings C1 and C2.
 test('C1: a batch over 3,000 g shows a plain note, a normal batch does not', async ({ page }) => {
   await start(page);

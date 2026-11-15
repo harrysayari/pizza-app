@@ -167,6 +167,7 @@ The cook can close the page and return later to the same plan and timers, share 
 - **FR-012**: The schedule MUST follow the reference recipe's order and waiting times, and keep the fridge rest between 16 and 24 hours.
 - **FR-013**: If the chosen bake time leaves less than the minimum lead time (about 22 hours), the product MUST show the earliest possible ready time with a one-tap way to use it, and MUST NOT show an error dead end.
 - **FR-014**: Changing any choice MUST update the amounts and times immediately.
+- **FR-041**: The schedule's steps MUST be shown in two parts that the user can open and close: Part 1, Poolish (the steps up to and including the fridge rest), and Part 2, Final dough (the steps after the fridge). Each part MUST show its total time in hours and minutes and when it starts and ends, and the schedule MUST show the total time from the first step to the bake. Opening or closing a part MUST NOT change any time, and MUST be kept when the screen redraws.
 
 **Step-by-step mode**
 

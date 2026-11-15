@@ -178,3 +178,33 @@ export function formatDuration(minutes: number): string {
   const m = minutes % 60;
   return m === 0 ? `${h} hr` : `${h} hr ${m} min`;
 }
+
+export type PartId = 'poolish' | 'final';
+
+export interface PlanPart {
+  id: PartId;
+  title: string;
+  steps: Step[];
+  startAt: Instant;
+  endAt: Instant;
+  /** Whole minutes from the first step's start to the last step's end. */
+  minutes: number;
+}
+
+/**
+ * The plan in two parts, split at the fridge (FR-041): the poolish part ends with the fridge rest,
+ * the final dough part starts when the poolish comes out. Steps are not copied or changed.
+ */
+export function planParts(plan: Plan): PlanPart[] {
+  const cut = plan.steps.findIndex((s) => s.id === 'poolish-fridge') + 1;
+  const make = (id: PartId, title: string, steps: Step[]): PlanPart | null => {
+    const first = steps[0];
+    const last = steps.at(-1);
+    if (!first || !last) return null;
+    return { id, title, steps, startAt: first.startAt, endAt: last.endAt, minutes: Math.round((last.endAt - first.startAt) / 60_000) };
+  };
+  return [
+    make('poolish', 'Part 1: Poolish', plan.steps.slice(0, cut)),
+    make('final', 'Part 2: Final dough, after the fridge', plan.steps.slice(cut)),
+  ].filter((x): x is PlanPart => x !== null);
+}
