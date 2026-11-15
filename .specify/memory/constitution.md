@@ -1,20 +1,3 @@
-<!--
-SYNC IMPACT REPORT (temporary; remove before commit)
-Version change: 1.2.0 -> 1.2.1 (PATCH: wording clarification only, no change of meaning)
-Modified principles:
-  - IX. No Backend by Default: the reminder service exception now says a registration is deleted
-    once its reminder (and its single repeat) is sent or cancelled, and in any case within 24
-    hours AFTER ITS END TIME (it said "within 24 hours", which a fridge-rest reminder registered
-    a day ahead could not meet). The fixed message may be sent once more as one repeat,
-    5 minutes later.
-  - All other principles unchanged
-Added sections: none
-Removed sections: none
-Follow-up TODOs (outside this command's scope):
-  - Update "constitution v1.1.0 / v1.1.1 / v1.2.0" references to v1.2.1 in CLAUDE.md,
-    specs/001-pizza-dough-planner (spec.md, plan.md, tasks.md) and the feature 002 spec.
-  - Reword specs/001 FR-022 for feature 002 ("no delivery promise").
--->
 # Pizza Dough Planner Constitution
 
 ## Core Principles
