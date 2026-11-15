@@ -145,14 +145,14 @@ description: "Task list for the Pizza Dough Planner"
 
 ### Tests for User Story 4 (write first, confirm they FAIL)
 
-- [ ] T044 [P] [US4] Write FAILING tests in `tests/unit/ics.test.ts` for `buildIcs` per contracts/calendar-ics.md: CRLF line endings; lines folded at 75 octets; `PRODID:-//Pizza Dough Planner//EN`, `VERSION:2.0`; one `VEVENT` per step with `UID` `<planId>-<stepId>@pizza-dough-planner` stable for the same request and `bakeAt`; `DTSTART` and `DTEND` in UTC with a minimum 5-minute length for active steps; `SUMMARY` "Pizza dough: <title>"; `TRANSP:TRANSPARENT`; active steps get a `VALARM` with `TRIGGER;VALUE=DATE-TIME` at the start; wait steps get one at the end with the description "Time to move on: <next step title>"; the `final-proof` alarm is at the bake time; the file does not change when the user is running late
-- [ ] T045 [P] [US4] Write FAILING e2e tests in `tests/e2e/calendar.spec.ts` for quickstart scenario 8 and spec US4 scenarios 1 to 3: tapping Add to calendar triggers a download of `pizza-dough-<bake date>.ics`; when the file cannot be handed over the page shows a plain message and a "Copy calendar file" option and the plan is unaffected
+- [x] T044 [P] [US4] Write FAILING tests in `tests/unit/ics.test.ts` for `buildIcs` per contracts/calendar-ics.md: CRLF line endings; lines folded at 75 octets; `PRODID:-//Pizza Dough Planner//EN`, `VERSION:2.0`; one `VEVENT` per step with `UID` `<planId>-<stepId>@pizza-dough-planner` stable for the same request and `bakeAt`; `DTSTART` and `DTEND` in UTC with a minimum 5-minute length for active steps; `SUMMARY` "Pizza dough: <title>"; `TRANSP:TRANSPARENT`; active steps get a `VALARM` with `TRIGGER;VALUE=DATE-TIME` at the start; wait steps get one at the end with the description "Time to move on: <next step title>"; the `final-proof` alarm is at the bake time; the file does not change when the user is running late
+- [x] T045 [P] [US4] Write FAILING e2e tests in `tests/e2e/calendar.spec.ts` for quickstart scenario 8 and spec US4 scenarios 1 to 3: tapping Add to calendar triggers a download of `pizza-dough-<bake date>.ics`; when the file cannot be handed over the page shows a plain message and a "Copy calendar file" option and the plan is unaffected
 
 ### Implementation for User Story 4
 
-- [ ] T046 [US4] Implement `src/domain/ics.ts` (`buildIcs(plan, exportedAt)`) with a `planId` hash of the request and `bakeAt`. Make T044 pass
-- [ ] T047 [P] [US4] Create `src/platform/calendar-file.ts`: `deliver(text, filename)` that offers the file as a download (and the share action where available), returns a result, and a `copy(text)` fallback using the clipboard with a selectable-text fallback
-- [ ] T048 [US4] Implement `renderCalendar()` in `src/ui/slots/schedule-actions.ts`: an "Add to calendar" secondary button, the success banner "Added to your calendar. You will get a reminder for every step." and the failure message with the Copy option. Make T045 pass
+- [x] T046 [US4] Implement `src/domain/ics.ts` (`buildIcs(plan, exportedAt)`) with a `planId` hash of the request and `bakeAt`. Make T044 pass
+- [x] T047 [P] [US4] Create `src/platform/calendar-file.ts`: `deliver(text, filename)` that offers the file as a download (and the share action where available), returns a result, and a `copy(text)` fallback using the clipboard with a selectable-text fallback
+- [x] T048 [US4] Implement `renderCalendar()` in `src/ui/slots/schedule-actions.ts`: an "Add to calendar" secondary button, the success banner "Added to your calendar. You will get a reminder for every step." and the failure message with the Copy option. Make T045 pass
 
 **Checkpoint**: US4 works on top of US1.
 
