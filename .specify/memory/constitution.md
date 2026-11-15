@@ -1,25 +1,3 @@
-<!--
-SYNC IMPACT REPORT (temporary; remove before commit)
-Version change: 1.0.0 → 1.1.0 (MINOR: four principles added, one materially expanded)
-Project name: "Pizza App" → "Pizza Dough Planner"
-Modified principles:
-  - II. Kitchen-Ready Usability (expanded: 16px body text floor, screen-reader labels on every
-    control, reduced-motion support)
-  - III. Correct Dough Math (removed "extreme temperatures" from the edge-case list)
-  - I, IV, V unchanged
-Added principles:
-  - VI. Zero-Friction Access
-  - VII. Offline After First Load
-  - VIII. Simple Inputs, Forgiving Behaviour
-  - IX. No Backend by Default
-Added sections: none
-Removed sections: none
-Changed constraints: the background-reminder bullet in Additional Constraints was replaced
-  with the timer-alert and calendar-alarm rule.
-Follow-up TODOs:
-  - TODO(TECH_STACK): still no stack chosen. Amend once the plan fixes it.
-  - Optional: review principle IV (test-first); it was inferred in 1.0.0, not requested.
--->
 # Pizza Dough Planner Constitution
 
 ## Core Principles
@@ -88,8 +66,13 @@ Rationale: no backend means no accounts, no data to protect and nothing to keep 
 
 ## Additional Constraints
 
-- Technology stack: TODO(TECH_STACK): not yet chosen. Until it is, plans MUST record the
-  chosen stack and its rationale, and this constitution MUST be amended to reference it.
+- Technology stack: TypeScript (strict) built with Vite into static files, with plain DOM and
+  no UI framework. Unit tests use Vitest with jsdom. End-to-end and accessibility checks use
+  Playwright (Chromium and WebKit) with axe-core. The two typefaces are self-hosted through
+  `@fontsource` packages, and offline use comes from a hand-written service worker. The product
+  MUST have no runtime dependencies; every package is a build or test dependency (principle V
+  already governs new ones). Rationale: `specs/001-pizza-dough-planner/plan.md` and
+  `research.md`.
 - Timer alerts (sound, vibration and the finished state) are guaranteed only while the page
   is open. The product MUST NOT promise alerts on a locked or closed page. The calendar export
   MUST add alarms for the end of each waiting step so a locked phone still reminds the user.
@@ -117,4 +100,4 @@ open specs, plans and tasks MUST be checked for conflicts and updated. Complianc
 at each plan (Constitution Check) and each pull request. Runtime guidance for agents lives in
 `CLAUDE.md`.
 
-**Version**: 1.1.0 | **Ratified**: 2026-11-15 | **Last Amended**: 2026-11-15
+**Version**: 1.1.1 | **Ratified**: 2026-11-15 | **Last Amended**: 2026-11-15
