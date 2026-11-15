@@ -35,6 +35,7 @@ export interface Loaded {
   fridgeMinutes: number | null;
   ticked: Record<string, boolean>;
   doneAt: Record<string, number>;
+  snoozes: Record<string, number>;
   timer: TimerData | null;
   preferences: Preferences;
   progress: Progress;
@@ -74,7 +75,7 @@ function readPreferences(v: unknown): Preferences | null {
   const { muted, keepScreenOn, theme } = v;
   if (typeof muted !== 'boolean' || typeof keepScreenOn !== 'boolean') return null;
   if (theme !== 'system' && theme !== 'light' && theme !== 'dark') return null;
-  return { muted, keepScreenOn, theme };
+  return { muted, keepScreenOn, theme, ...(v.notify === 'on' ? { notify: 'on' as const } : {}) };
 }
 
 function readTimer(v: unknown): TimerData | null {
@@ -86,7 +87,7 @@ function readTimer(v: unknown): TimerData | null {
   const remaining = v.remainingMs === undefined ? 0 : v.remainingMs;
   if (typeof remaining !== 'number' || !Number.isInteger(remaining) || remaining < 0) return null;
   if (state === 'running' && endAt === 0) return null;
-  return { stepId: v.stepId, state, endAt, remainingMs: remaining, alerted: v.alerted === true };
+  return { stepId: v.stepId, state, endAt, remainingMs: remaining, alerted: v.alerted === true, ...(v.ack === true ? { ack: true } : {}) };
 }
 
 function readProgress(v: unknown): Progress {
@@ -126,12 +127,21 @@ function parse(raw: string | null): Loaded | null {
     }
   }
 
+  const snoozes: Record<string, number> = {};
+  if (isObject(obj.snoozes)) {
+    for (const [id, v] of Object.entries(obj.snoozes)) {
+      const t = instant(v);
+      if (t !== null) snoozes[id] = t;
+    }
+  }
+
   return {
     request,
     bakeAt: planOk ? bakeAt : null,
     fridgeMinutes: planOk ? (f as number) : null,
     ticked,
     doneAt,
+    snoozes,
     timer: readTimer(obj.timer),
     preferences,
     progress: readProgress(obj.progress),
@@ -160,10 +170,12 @@ function isEmpty(s: AppState): boolean {
     s.bakeAt === null &&
     Object.keys(s.ticked).length === 0 &&
     Object.keys(s.doneAt).length === 0 &&
+    Object.keys(s.snoozes).length === 0 &&
     s.timer === null &&
     p.muted === d.muted &&
     p.keepScreenOn === d.keepScreenOn &&
-    p.theme === d.theme
+    p.theme === d.theme &&
+    p.notify === undefined
   );
 }
 
@@ -176,6 +188,9 @@ function serialise(s: AppState, now: number): string {
   }
   out.ticked = Object.keys(s.ticked).filter((id) => s.ticked[id]);
   out.doneAt = Object.fromEntries(Object.entries(s.doneAt).map(([id, t]) => [id, iso(t)]));
+  if (Object.keys(s.snoozes).length > 0) {
+    out.snoozes = Object.fromEntries(Object.entries(s.snoozes).map(([id, t]) => [id, iso(t)]));
+  }
   if (s.timer !== null) {
     const t = s.timer;
     out.timer = {
@@ -184,6 +199,7 @@ function serialise(s: AppState, now: number): string {
       ...(t.endAt > 0 ? { endAt: iso(t.endAt) } : {}),
       remainingMs: Math.max(0, Math.round(t.remainingMs)),
       alerted: t.alerted,
+      ...(t.ack === true ? { ack: true } : {}),
     };
   }
   out.preferences = s.preferences;

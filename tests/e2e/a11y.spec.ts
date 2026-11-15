@@ -9,7 +9,8 @@ const TO_FIRST_STEP = (9 * 60 + 37) * MIN;
 
 const chip = (page: Page, text: string) =>
   page.locator('label.chip').filter({ has: page.locator('.chip-line', { hasText: new RegExp(`^${text}$`) }) });
-const done = (page: Page) => page.getByRole('button', { name: 'Done, next step' });
+// The step card's own button (the timer alert has one too, spec 002).
+const done = (page: Page) => page.getByRole('article').getByRole('button', { name: 'Done, next step' });
 
 async function makePlan(page: Page, now = NOW, day = 'Tomorrow', time = 'Dinner'): Promise<void> {
   await useFakeClock(page, now);
@@ -100,7 +101,7 @@ test('step mode: idle timer, running, paused, finished and the come-back step', 
   await checkScreen(page);
   await page.getByRole('button', { name: 'Resume' }).click();
   await page.clock.fastForward(15 * MIN);
-  await expect(page.getByText('Time is up')).toBeVisible();
+  await expect(page.getByText('Time is up').first()).toBeVisible();
   await checkScreen(page);
   await done(page).click();
   await done(page).click();

@@ -8,6 +8,7 @@ import { writeLink } from '../../state/share-link';
 import { store, type AppState, type Theme } from '../../state/store';
 import { renderChipGroup } from '../components/chip';
 import { renderToggle } from '../components/toggle';
+import { renderNotifyControl } from '../slots/notify-control';
 
 type Confirming = 'new' | 'clear' | null;
 type ShareStatus = 'idle' | 'copied' | 'manual';
@@ -176,6 +177,6 @@ export function renderSettingsScreen(state: AppState): HTMLElement {
     }),
   );
 
-  main.append(shareSection(state), prefs, resetSection(), button('Back', 'btn btn-secondary btn-block', 'settings-back', () => closeSettings()));
+  main.append(shareSection(state), prefs, renderNotifyControl(state), resetSection(), button('Back', 'btn btn-secondary btn-block', 'settings-back', () => closeSettings()));
   return main;
 }

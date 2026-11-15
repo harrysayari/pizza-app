@@ -4,6 +4,7 @@
 
 import { planFromSaved, restoreTimer } from '../domain/saved';
 import { localDateOf, systemClock, type Clock } from '../platform/clock';
+import { openStepFromNotification } from './actions/notify';
 import { setRequest } from './actions/plan';
 import { setMuted } from './actions/timer';
 import { clearAll, clearPlan, flush, load, save, type PersistEnv } from './persistence';
@@ -50,6 +51,7 @@ function clearPlanState(store: Store): void {
     plan: null,
     ticked: {},
     doneAt: {},
+    snoozes: {},
     timer: null,
     progress: { screen: 'plan', currentStepId: null },
   });
@@ -111,6 +113,7 @@ function restore(store: Store, env: HydrateEnv, now: number): boolean {
     patch.bakeAt = saved.bakeAt;
     patch.fridgeMinutes = saved.fridgeMinutes;
     patch.doneAt = doneAt;
+    patch.snoozes = Object.fromEntries(Object.entries(saved.snoozes).filter(([id]) => ids.includes(id)));
     patch.timer = restoreTimer(saved.timer, ids, now);
     patch.progress = { screen: saved.progress.screen, currentStepId: current };
   }
@@ -127,6 +130,17 @@ export function hydrate(store: Store = appStore, env: HydrateEnv = {}): void {
     hadPlan = restore(store, env, now);
   } catch {
     // Unreadable saved data counts as no saved data.
+  }
+
+  try {
+    // A tap on a timer notification opens the app at ./?step=<id>.
+    const step = new URL(env.url ?? location.href).searchParams.get('step');
+    if (step !== null) {
+      openStepFromNotification(step, store);
+      stripLink();
+    }
+  } catch {
+    // No address, no step.
   }
 
   try {

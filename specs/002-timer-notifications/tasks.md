@@ -26,38 +26,38 @@ description: "Task list for Timer-End Notifications"
 
 ## Phase 1: Setup
 
-- [ ] T001 Add the additive field `prefs.notify` (`"off" | "on"`, default `off`, older saved data reads as `off`) to the saved-state shape in `src/domain/saved-state.ts`, with unit tests in `tests/unit/saved-state.test.ts` (round trip, old object without the field, bad value falls back to `off`)
+- [x] T001 Add the additive field `prefs.notify` (`"off" | "on"`, default `off`, older saved data reads as `off`) to the saved-state shape in `src/state/persistence.ts` and `src/state/store.ts` (the saved shape lives there, not in a `saved-state.ts`; `notify` is stored only when `on`), plus `snoozes` and the timer's `ack` flag, with unit tests in `tests/unit/persistence.test.ts` (round trip, old object without the field, bad value falls back to `off`)
 - [ ] T002 [P] Add `scripts/export-step-ids.mjs` that writes the 14 step ids and titles from `src/domain/recipe.ts` to `service/src/steps.json` (the only source for the service's fixed list), and a `npm run steps` script; a PHPUnit test in T042 fails if the file is stale
 
 ## Phase 2: Foundational (blocks all stories)
 
-- [ ] T003 [P] Write failing unit tests, then implement `activeAlert(plan, timer, doneAt, now)` and `chimeTimes(endAt, now, { muted, userHasTapped })` in `src/domain/alert.ts` and `tests/unit/alert.test.ts`: chime every 30 s from the end for up to 5 minutes, none before the first tap, none when muted, `kind` is `timer` or `wait`, `agoMs` for a missed end
-- [ ] T004 [P] Write failing unit tests, then implement `desiredReminders(plan, timer, doneAt, snoozes, now, prefs)` and `diffReminders(...)` in `src/domain/reminders.ts` and `tests/unit/reminders.test.ts` per data-model.md: running timer included; paused, finished, done and cleared excluded; long wait (over 2 hours) included once the step before is done; at most 2 entries; empty when notify off, permission not granted or no subscription; a snooze ("Remind me in 15 min") moves that wait's `endAt` to snooze time + 15 min; `silent` follows mute
-- [ ] T005 [P] Implement `src/platform/notifications.ts`: `support()`, `permission()`, `request()`, `subscribe(publicKey)`, `getSubscription()`, `unsubscribe()`, `show(title, body, tag, silent)`; each returns a safe value when the API is missing (iPhone normal tab reports `unavailable`)
+- [x] T003 [P] Write failing unit tests, then implement `activeAlert(plan, timer, doneAt, now)` and `chimeTimes(endAt, now, { muted, userHasTapped })` in `src/domain/alert.ts` and `tests/unit/alert.test.ts`: chime every 30 s from the end for up to 5 minutes, none before the first tap, none when muted, `kind` is `timer` or `wait`, `agoMs` for a missed end
+- [x] T004 [P] Write failing unit tests, then implement `desiredReminders(plan, timer, doneAt, snoozes, now, prefs)` and `diffReminders(...)` in `src/domain/reminders.ts` and `tests/unit/reminders.test.ts` per data-model.md: running timer included; paused, finished, done and cleared excluded; long wait (over 2 hours) included once the step before is done; at most 2 entries; empty when notify off, permission not granted or no subscription; a snooze ("Remind me in 15 min") moves that wait's `endAt` to snooze time + 15 min; `silent` follows mute
+- [x] T005 [P] Implement `src/platform/notifications.ts`: `support()`, `permission()`, `request()`, `show(title, options)`, `close(tag?)` (`subscribe`, `getSubscription` and `unsubscribe` are added in T048); each returns a safe value when the API is missing (iPhone normal tab reports `unavailable`)
 
 ## Phase 3: User Story 1 - In-page alert you cannot miss (P1) MVP
 
 **Goal**: a stay-until-acted banner with repeating chime and vibration.
 **Independent test**: with the page open, a timer end shows the banner on any screen, repeats every 30 s for 5 minutes, and "Done, next step" or "+1 min" stops everything.
 
-- [ ] T006 [P] [US1] Failing e2e `tests/e2e/alert.spec.ts` (fake clock): banner appears within 1 s on the schedule and step screens (FR-001, SC-001); buttons Done, next step and +1 min (FR-002); stays until acted on; sound and vibration repeat at 30 s steps and stop after 5 minutes (FR-003); mute and first-tap rules (FR-004); acting stops sound (FR-005); reload after a missed end shows "ended N min ago" (FR-016); layout checks and axe in both themes (FR-028)
-- [ ] T007 [US1] Build `src/ui/components/alert-banner.ts` from `activeAlert` and mount it in `src/ui/app.ts` above every screen; styles in `design/components.css` using tokens only, an icon plus words (no colour-only meaning), reduced motion respected
-- [ ] T008 [US1] Wire repeat scheduling (chime and vibration via the existing adapters in `src/platform/`) and the actions in `src/state/actions/timer.ts`; "Done, next step" and "+1 min" reuse the existing timer actions
-- [ ] T009 [US1] Long-wait alert (FR-014): kind `wait` with "Done, next step" and "Remind me in 15 min" (stored as a snooze in state; `desiredReminders` then moves the service reminder to the new end, per data-model.md) in `src/domain/alert.ts` and the banner
-- [ ] T010 [US1] Run lint, unit and e2e; confirm the existing 166 e2e tests still pass
+- [x] T006 [P] [US1] Failing e2e `tests/e2e/alert.spec.ts` (with shared helpers moved to `tests/e2e/steps-helpers.ts`) (fake clock): banner appears within 1 s on the schedule and step screens (FR-001, SC-001); buttons Done, next step and +1 min (FR-002); stays until acted on; sound and vibration repeat at 30 s steps and stop after 5 minutes (FR-003); mute and first-tap rules (FR-004); acting stops sound (FR-005); reload after a missed end shows "ended N min ago" (FR-016); layout checks and axe in both themes (FR-028)
+- [x] T007 [US1] Build `src/ui/components/alert-banner.ts` from `activeAlert` and mount it in `src/ui/app.ts` above every screen; styles in `design/components.css` using tokens only, an icon plus words (no colour-only meaning), reduced motion respected
+- [x] T008 [US1] Wire repeat scheduling (chime and vibration via the existing adapters in `src/platform/`) and the actions in `src/state/actions/timer.ts`; "Done, next step" and "+1 min" reuse the existing timer actions
+- [x] T009 [US1] Long-wait alert (FR-014): kind `wait` with "Done, next step" and "Remind me in 15 min" (stored as a snooze in state; `desiredReminders` then moves the service reminder to the new end, per data-model.md) in `src/domain/alert.ts` and the banner
+- [x] T010 [US1] Run lint, unit and e2e; confirm the existing 166 e2e tests still pass
 
 ## Phase 4: User Story 2 - Opt in to notifications (P2)
 
 **Goal**: one control, asked only after a tap and an explanation; local notification when the page is hidden but running.
 **Independent test**: first load shows no prompt; the control reaches `on` in 3 taps; a hidden page gets one "Time is up" notification; the page works with notifications off, blocked or unavailable.
 
-- [ ] T011 [P] [US2] Failing e2e `tests/e2e/notify-control.spec.ts`: no prompt on load or navigation (FR-007, SC-003); four states with words and icon (FR-008); explanation before the prompt; blocked and unavailable give a next step; no nagging (FR-015); choice remembered and cleared by "Clear saved data", kept by "Start a new plan" (FR-018); axe and sizes
-- [ ] T012 [P] [US2] Failing e2e for the honest wording (FR-017, SC-008): an automated scan of all notification text for delivery promises, and the calendar-alarm backup is named
-- [ ] T013 [US2] Build `src/ui/slots/notify-control.ts` and the explanation dialog; mount it in settings and step mode (FR-006)
-- [ ] T014 [US2] Implement `src/state/actions/notify.ts`: turn on (request permission only inside the tap handler, iPhone Home Screen guidance), turn off, persist `prefs.notify`
-- [ ] T015 [US2] Local notification path: when notify is on, there is no active registration and the page is hidden, show the notification at the end within 5 s (FR-009, SC-004, fake-clock test), once more 5 minutes later if the user has not opened the app or acted, and never a third time; none while visible (FR-011), silent when muted (FR-013), one per end (FR-012 cancels on pause, early finish, +1 min, new timer, done, plan change, off)
-- [ ] T016 [US2] `public/sw.js`: add the `notificationclick` handler that focuses or opens `./?step=<id>#alert`; the page shows the alert on that step (FR-010). Navigations to `./?step=<id>` must match the precached page (`ignoreSearch`) so the tap works offline, and the page reads `step` without breaking the share-link query handling; test in `tests/e2e/offline.spec.ts` style with the network off
-- [ ] T017 [US2] Privacy test update in `tests/e2e/privacy.spec.ts`: no network request for users who never opt in (SC-010)
+- [x] T011 [P] [US2] Failing e2e `tests/e2e/notify.spec.ts` (T011, T012, T015 and T016 are all in this one file): no prompt on load or navigation (FR-007, SC-003); four states with words and icon (FR-008); explanation before the prompt; blocked and unavailable give a next step; no nagging (FR-015); choice remembered and cleared by "Clear saved data", kept by "Start a new plan" (FR-018); axe and sizes
+- [x] T012 [P] [US2] Failing e2e for the honest wording (FR-017, SC-008): an automated scan of all notification text for delivery promises, and the calendar-alarm backup is named
+- [x] T013 [US2] Build `src/ui/slots/notify-control.ts` and the explanation dialog; mount it in settings and step mode (FR-006)
+- [x] T014 [US2] Implement `src/state/actions/notify.ts`: turn on (request permission only inside the tap handler, iPhone Home Screen guidance), turn off, persist `prefs.notify`
+- [x] T015 [US2] Local notification path: when notify is on, there is no active registration and the page is hidden, show the notification at the end within 5 s (FR-009, SC-004, fake-clock test), once more 5 minutes later if the user has not opened the app or acted, and never a third time; none while visible (FR-011), silent when muted (FR-013), one per end (FR-012 cancels on pause, early finish, +1 min, new timer, done, plan change, off)
+- [x] T016 [US2] `public/sw.js`: add the `notificationclick` handler that focuses or opens `./?step=<id>#alert`; the page shows the alert on that step (FR-010). Navigations to `./?step=<id>` must match the precached page (`ignoreSearch`) so the tap works offline, and the page reads `step` without breaking the share-link query handling; test in `tests/e2e/offline.spec.ts` style with the network off
+- [x] T017 [US2] Privacy test update in `tests/e2e/privacy.spec.ts`: no network request for users who never opt in (SC-010)
 
 ## Phase 5: User Story 3 - Locked or closed phone via the reminder service (P3)
 

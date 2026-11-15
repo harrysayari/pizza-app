@@ -247,3 +247,45 @@ describe('rebuilding the plan from saved inputs', () => {
     expect(rebuilt.request).toEqual(request);
   });
 });
+
+describe('timer notifications (spec 002)', () => {
+  const stateWith = (patch: Partial<AppState>): AppState => ({ ...fullState(), ...patch });
+
+  it('"notify on" is saved with the preferences and read back', () => {
+    const s = stateWith({ preferences: { muted: false, keepScreenOn: true, theme: 'system', notify: 'on' } });
+    save(s, env());
+    flush();
+    expect(load(env())!.preferences.notify).toBe('on');
+  });
+  it('older saved data without the field reads as off', () => {
+    storage.setItem(STORAGE_KEY, JSON.stringify({ version: 1, preferences: { muted: false, keepScreenOn: true, theme: 'system' } }));
+    expect(load(env())!.preferences.notify).toBeUndefined();
+  });
+  it('a bad value falls back to off', () => {
+    storage.setItem(STORAGE_KEY, JSON.stringify({ version: 1, preferences: { muted: false, keepScreenOn: true, theme: 'system', notify: 'yes' } }));
+    expect(load(env())!.preferences.notify).toBeUndefined();
+  });
+  it('the choice is kept by Start a new plan and removed by Clear saved data', () => {
+    const store = createStore(stateWith({ preferences: { muted: false, keepScreenOn: true, theme: 'system', notify: 'on' } }));
+    startNewPlan(store, env());
+    expect(store.getState().preferences.notify).toBe('on');
+    clearSavedData(store, env());
+    expect(store.getState().preferences.notify).toBeUndefined();
+  });
+  it('a snooze and an acknowledged timer round trip', () => {
+    const s = stateWith({
+      snoozes: { 'poolish-fridge': NOW + 900_000 },
+      timer: { stepId: 'poolish-rest-open', state: 'finished', endAt: NOW, remainingMs: 0, alerted: true, ack: true },
+    });
+    save(s, env());
+    flush();
+    const loaded = load(env())!;
+    expect(loaded.snoozes).toEqual({ 'poolish-fridge': NOW + 900_000 });
+    expect(loaded.timer!.ack).toBe(true);
+  });
+  it('Start a new plan clears snoozes', () => {
+    const store = createStore(stateWith({ snoozes: { 'poolish-fridge': NOW } }));
+    startNewPlan(store, env());
+    expect(store.getState().snoozes).toEqual({});
+  });
+});

@@ -13,12 +13,10 @@ import {
 import type { Plan, Step } from '../../domain/schedule';
 import { createAudio } from '../../platform/audio';
 import { systemClock, type Clock } from '../../platform/clock';
-import { vibrate } from '../../platform/vibration';
 import * as wakeLock from '../../platform/wake-lock';
 import { store as appStore, type Store } from '../store';
 
 const REFRESH_MS = 250;
-const ALERT_VIBRATION = [200, 100, 200];
 
 export type WakeStatus = 'unknown' | 'held' | 'refused' | 'unsupported';
 
@@ -60,15 +58,18 @@ function releaseScreen(): void {
 
 // ---- Alerts and the display loop ----
 
-/** Run one tick: fire the alert once when a running timer has ended. */
+/** Play the chime (the alert module repeats it; it is silent before the first tap or when muted). */
+export function chime(): void {
+  audio.chime();
+}
+
+/** Run one tick: a running timer that has ended becomes finished (the alert module sounds it). */
 export function tick(store: Store = appStore, clock: Clock = systemClock): void {
   const t = toTimer(store);
   if (t === null || t.state !== 'running') return;
   const r = tickTimer(t, clock.now());
   if (!r.fire) return;
   store.update({ timer: r.timer });
-  audio.chime();
-  vibrate(ALERT_VIBRATION);
   releaseScreen();
 }
 
@@ -124,21 +125,33 @@ export function currentStepIndex(p: Plan, currentStepId: string | null): number 
   return i >= 0 ? i : 0;
 }
 
-/** Record the step as done now and move to the next one. */
+/** Record the current step as done now and move to the next one. */
 export function doneStep(store: Store = appStore, clock: Clock = systemClock): void {
   const p = plan(store);
   if (p === null) return;
+  const i = currentStepIndex(p, store.getState().progress.currentStepId);
+  doneStepById(p.steps[i]!.id, store, clock);
+}
+
+/** Record `stepId` as done now. The current step moves on when it was this one (or an earlier one). */
+export function doneStepById(stepId: string, store: Store = appStore, clock: Clock = systemClock): void {
+  const p = plan(store);
+  if (p === null) return;
   const s = store.getState();
-  const i = currentStepIndex(p, s.progress.currentStepId);
-  const step = p.steps[i]!;
-  const next = p.steps[i + 1] ?? step;
-  const doneAt = { ...s.doneAt, [step.id]: clock.now() };
-  const ownTimer = s.timer !== null && s.timer.stepId === step.id;
+  const at = p.steps.findIndex((x) => x.id === stepId);
+  if (at < 0) return;
+  const next = p.steps[at + 1] ?? p.steps[at]!;
+  const doneAt = { ...s.doneAt, [stepId]: clock.now() };
+  const snoozes = { ...s.snoozes };
+  delete snoozes[stepId];
+  const ownTimer = s.timer !== null && s.timer.stepId === stepId;
   if (ownTimer) releaseScreen();
+  const here = currentStepIndex(p, s.progress.currentStepId);
   store.update({
     doneAt,
+    snoozes,
     timer: ownTimer ? null : s.timer,
-    progress: { ...s.progress, currentStepId: next.id },
+    progress: here <= at ? { ...s.progress, currentStepId: next.id } : s.progress,
   });
 }
 

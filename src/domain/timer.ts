@@ -16,6 +16,8 @@ export interface Timer {
   remainingMs: number;
   /** True once the alert has been given (or deliberately skipped by finishing early). */
   alerted: boolean;
+  /** True once the user has dealt with the end (finished early, or acted on the alert). */
+  ack?: boolean;
 }
 
 export interface TickResult {
@@ -58,7 +60,13 @@ export function addMinute(t: Timer): Timer {
 /** "Finish early": finished at once, with no alert. */
 export function finishEarly(t: Timer, now: Instant): Timer {
   if (t.state !== 'running' && t.state !== 'paused') return t;
-  return { ...t, state: 'finished', endAt: now, remainingMs: 0, alerted: true };
+  return { ...t, state: 'finished', endAt: now, remainingMs: 0, alerted: true, ack: true };
+}
+
+/** "+1 min" on the alert of a timer that has run out: it runs again for one minute. */
+export function extendFinished(t: Timer, now: Instant): Timer {
+  if (t.state !== 'finished') return t;
+  return { stepId: t.stepId, state: 'running', endAt: now + MINUTE_MS, remainingMs: MINUTE_MS, alerted: false };
 }
 
 export function tickTimer(t: Timer, now: Instant): TickResult {

@@ -107,3 +107,21 @@
 .pizza-basil { fill: var(--basil); }
 .pizza-cut { stroke: var(--tomato-pressed); stroke-width: 2; stroke-linecap: round; fill: none; }
 .pizza-spot { fill: var(--semolina-text); opacity: 0.35; }
+
+/* Timer alert: pinned to the top of every screen until acted on. Tokens only. */
+.alert-region {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky);
+  max-width: 480px;
+  margin: 0 auto var(--space-4);
+  padding-top: var(--space-2);
+  background: var(--surface-ground);
+}
+.banner-alert { border-color: var(--tomato); background: var(--surface-raised); }
+.banner-alert .banner-icon, .banner-alert .banner-title { color: var(--ink); }
+.alert-actions { display: flex; flex-wrap: wrap; gap: var(--space-3); }
+
+/* Timer-notification control. */
+.notify-state { display: flex; align-items: center; gap: var(--space-2); margin: 0; font-weight: 700; }
+.notify-icon { flex: none; }

@@ -24,6 +24,23 @@ self.addEventListener('activate', (event) => {
   );
 });
 
+// A tap on a timer notification brings the app forward on that step (spec 002, FR-010).
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  const stepId = (event.notification.data && event.notification.data.stepId) || '';
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windows) => {
+      for (const client of windows) {
+        if ('focus' in client) {
+          client.postMessage({ type: 'pdp-open', stepId });
+          return client.focus();
+        }
+      }
+      return self.clients.openWindow('./?step=' + encodeURIComponent(stepId));
+    }),
+  );
+});
+
 self.addEventListener('fetch', (event) => {
   const request = event.request;
   if (request.method !== 'GET' || new URL(request.url).origin !== self.location.origin) return;

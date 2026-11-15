@@ -93,3 +93,24 @@ describe('tickTimer', () => {
     expect(tickTimer(f, T0 + 20 * MIN).fire).toBe(false);
   });
 });
+
+describe('alert support', () => {
+  it('finishing early counts as acknowledged, running out does not', () => {
+    const running = startTimer(rest, T0);
+    expect(finishEarly(running, T0 + MIN).ack).toBe(true);
+    expect(tickTimer(running, T0 + 15 * MIN).timer.ack).toBeUndefined();
+  });
+  it('extendFinished restarts a finished timer for one minute', async () => {
+    const { extendFinished } = await import('../../src/domain/timer');
+    const ended = tickTimer(startTimer(rest, T0), T0 + 16 * MIN).timer;
+    expect(extendFinished(ended, T0 + 17 * MIN)).toEqual({
+      stepId: rest.id,
+      state: 'running',
+      endAt: T0 + 18 * MIN,
+      remainingMs: MIN,
+      alerted: false,
+    });
+    const running = startTimer(rest, T0);
+    expect(extendFinished(running, T0)).toBe(running);
+  });
+});

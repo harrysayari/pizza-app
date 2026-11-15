@@ -4,6 +4,10 @@ import { renderScheduleScreen } from './screens/schedule';
 import { renderSettingsScreen, isSettingsOpen } from './screens/settings';
 import { renderStepsScreen } from './screens/steps';
 import { renderMenu, renderShareChoice } from './slots/menu';
+import { installAlertEffects, getActiveAlert, alertDone, alertPlusMinute, alertRemindLater } from '../state/actions/alert';
+import { installNotifyEffects } from '../state/actions/notify';
+import { installTimerEffects } from '../state/actions/timer';
+import { renderAlertBanner } from './components/alert-banner';
 
 type Slot = string | Node;
 
@@ -42,8 +46,18 @@ function applyTheme(theme: AppState['preferences']['theme']): void {
 export function mountApp(root: HTMLElement, store: Store): () => void {
   const render = (state: AppState): void => {
     applyTheme(state.preferences.theme);
+    const alert = getActiveAlert(store);
+    const banner =
+      alert === null
+        ? null
+        : renderAlertBanner({
+            alert,
+            onDone: () => alertDone(store),
+            onPlusMinute: () => alertPlusMinute(store),
+            onRemindLater: () => alertRemindLater(store),
+          });
     if (isSettingsOpen()) {
-      root.replaceChildren(renderSettingsScreen(state));
+      root.replaceChildren(...(banner ? [banner] : []), renderSettingsScreen(state));
       return;
     }
     const screen = screens[state.progress.screen](state);
@@ -51,8 +65,11 @@ export function mountApp(root: HTMLElement, store: Store): () => void {
     if (!screen.querySelector('[data-slot="menu"]')) append(screen, renderMenu());
     const choice = renderShareChoice();
     if (choice instanceof Node) (screen.querySelector('h1') ?? screen).after(choice);
-    root.replaceChildren(screen);
+    root.replaceChildren(...(banner ? [banner] : []), screen);
   };
+  installTimerEffects(store);
+  installAlertEffects(store);
+  installNotifyEffects(store);
   render(store.getState());
   return store.subscribe(render);
 }

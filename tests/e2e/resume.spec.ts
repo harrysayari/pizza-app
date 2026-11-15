@@ -86,7 +86,7 @@ test('US6.4: a timer that ended while the page was closed shows the finished sta
   await done(page).click();
   await page.getByRole('button', { name: 'Start 15 min' }).click();
   await reloadAt(page, TO_FIRST_STEP + 20 * MIN);
-  await expect(page.getByText('Time is up')).toBeVisible();
+  await expect(page.getByText('Time is up').first()).toBeVisible();
 });
 
 test('a paused timer keeps its time left', async ({ page }) => {

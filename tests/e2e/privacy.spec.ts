@@ -103,7 +103,7 @@ test('SC-010: a full plan, step mode, share and calendar flow sends no request o
   await page.getByRole('button', { name: 'Done, next step' }).click();
   await page.getByRole('button', { name: 'Start 15 min' }).click();
   await page.clock.fastForward(15 * MIN);
-  await expect(page.getByText('Time is up')).toBeVisible();
+  await expect(page.getByText('Time is up').first()).toBeVisible();
   await page.getByRole('button', { name: 'Mute sound' }).click();
   await page.waitForLoadState('networkidle');
 
@@ -134,4 +134,37 @@ test('opening a shared link sends nothing but same-origin requests', async ({ pa
   await page.waitForLoadState('networkidle');
   expect(seen.filter((s) => s.origin !== origin).map((s) => s.url)).toEqual([]);
   expect(await page.evaluate(() => (window as unknown as { __beacons: number }).__beacons)).toBe(0);
+});
+
+// Spec 002 SC-010: opening the notification control, reading the explanation and even turning
+// notifications on send nothing anywhere (there is no reminder service in this part of the feature).
+test('using the notification control makes no request once the page has loaded', async ({ page, context, browserName }) => {
+  test.skip(browserName !== 'chromium', 'WebKit shows the iPhone Home Screen note instead');
+  await page.addInitScript(() => {
+    class FakeNotification {
+      static permission = 'default';
+      static requestPermission(): Promise<string> {
+        FakeNotification.permission = 'granted';
+        return Promise.resolve('granted');
+      }
+    }
+    (window as unknown as { Notification: unknown }).Notification = FakeNotification;
+  });
+  const phase = { now: 'load' as 'load' | 'after' };
+  const seen = record(context, page, phase);
+  await useFakeClock(page, NOW);
+  await page.goto('/');
+  await chip(page, 'Tomorrow').click();
+  await chip(page, 'Dinner').click();
+  await page.getByRole('button', { name: 'Make my plan' }).click();
+  await page.evaluate(async () => {
+    await navigator.serviceWorker.ready;
+  });
+  phase.now = 'after';
+  await page.getByRole('button', { name: 'Settings' }).click();
+  await page.getByRole('button', { name: 'Turn on notifications' }).click();
+  await page.getByRole('button', { name: 'Continue' }).click();
+  await expect(page.locator('[data-slot="notify-control"]')).toHaveAttribute('data-state', 'on');
+  await page.getByRole('button', { name: 'Turn off notifications' }).click();
+  expect(seen.filter((s) => s.phase === 'after' && !s.fromServiceWorker).map((s) => s.url)).toEqual([]);
 });

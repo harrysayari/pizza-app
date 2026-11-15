@@ -19,12 +19,15 @@ export interface TimerData {
   endAt: number;
   remainingMs: number;
   alerted: boolean;
+  ack?: boolean;
 }
 
 export interface Preferences {
   muted: boolean;
   keepScreenOn: boolean;
   theme: Theme;
+  /** Timer notifications. Absent means off. */
+  notify?: 'on';
 }
 
 export interface Progress {
@@ -40,6 +43,8 @@ export interface AppState {
   plan: unknown | null;
   ticked: Record<string, boolean>;
   doneAt: Record<string, number>;
+  /** "Remind me in 15 min" on a long wait: step id to the instant the alert comes back. */
+  snoozes: Record<string, number>;
   timer: TimerData | null;
   preferences: Preferences;
   progress: Progress;
@@ -61,6 +66,7 @@ export function initialState(): AppState {
     plan: null,
     ticked: {},
     doneAt: {},
+    snoozes: {},
     timer: null,
     preferences: { muted: false, keepScreenOn: true, theme: 'system' },
     progress: { screen: 'plan', currentStepId: null },

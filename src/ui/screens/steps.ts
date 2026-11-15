@@ -27,6 +27,7 @@ import { renderPizzaArt } from '../components/pizza-art';
 import { renderStepCard } from '../components/step-card';
 import { renderTimer, updateTimer, type TimerProps } from '../components/timer';
 import { renderToggle } from '../components/toggle';
+import { renderNotifyControl } from '../slots/notify-control';
 
 function el<K extends keyof HTMLElementTagNameMap>(tag: K, className?: string, text?: string): HTMLElementTagNameMap[K] {
   const e = document.createElement(tag);
@@ -89,6 +90,7 @@ function controls(state: AppState): HTMLElement {
   box.append(
     button(muted ? 'Unmute sound' : 'Mute sound', 'btn btn-secondary', 'mute', () => setMuted(!muted)),
     button('Back to schedule', 'btn btn-secondary', 'to-schedule', () => backToSchedule()),
+    renderNotifyControl(state, 'h3'),
   );
   return box;
 }
