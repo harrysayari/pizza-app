@@ -124,14 +124,14 @@ description: "Task list for the Pizza Dough Planner"
 
 ### Tests for User Story 3 (write first, confirm they FAIL)
 
-- [ ] T039 [P] [US3] Write FAILING tests in `tests/unit/earliest.test.ts` for `earliestReady` and for `buildPlan` status: with `now` Friday 18:00, Saturday `lunch` gives status `tooSoon` and `earliest` set; the earliest result is the first slot among Lunch, Early dinner and Dinner over the next eight days that fits a 960-minute fridge; a bake time exactly at the minimum lead (1313 minutes) is `ok`, one minute less is `tooSoon`; `fridgeMinutes` shortens from 1080 toward 960 before reporting `tooSoon`; "If the first step's time is already in the past" is `tooSoon`
-- [ ] T040 [P] [US3] Write FAILING e2e tests in `tests/e2e/too-soon.spec.ts` for quickstart scenario 3 and spec US3 scenarios 1 to 3: the note names the earliest day and time, the button applies it and the plan then shows, no error screen appears, and an unworkable day or time chip carries a visible label saying why
+- [x] T039 [P] [US3] Write FAILING tests in `tests/unit/earliest.test.ts` for `earliestReady` and for `buildPlan` status: with `now` Friday 18:00, Saturday `lunch` gives status `tooSoon` and `earliest` set; the earliest result is the first slot among Lunch, Early dinner and Dinner over the next eight days that fits a 960-minute fridge; a bake time exactly at the minimum lead (1313 minutes) is `ok`, one minute less is `tooSoon`; `fridgeMinutes` shortens from 1080 toward 960 before reporting `tooSoon`; "If the first step's time is already in the past" is `tooSoon`
+- [x] T040 [P] [US3] Write FAILING e2e tests in `tests/e2e/too-soon.spec.ts` for quickstart scenario 3 and spec US3 scenarios 1 to 3: the note names the earliest day and time, the button applies it and the plan then shows, no error screen appears, and an unworkable day or time chip carries a visible label saying why
 
 ### Implementation for User Story 3
 
-- [ ] T041 [US3] Implement `earliestReady(now, today)` in a new `src/domain/earliest.ts` and extend `buildPlan` in `src/domain/schedule.ts` (US3 is the only story that edits `schedule.ts` after US1) to set `status: 'tooSoon'` and `earliest` per data-model.md ("`tooSoon` is never an error; it always carries `earliest`"). Implement the fridge shortening rule ("keep the fridge rest between 16 and 24 hours"). Make T039 pass
-- [ ] T042 [P] [US3] Create `src/ui/components/banner.ts` with the `.banner` markup (clock icon, `banner-title`, one sentence, one primary button) and a success variant `banner-ok`
-- [ ] T043 [US3] In `src/ui/slots/too-soon.ts` show the banner "Not enough time for <day time>" with "This dough needs about 22 hours. The earliest it can be ready is <day time>." and a "Use <day time>" button that sets the request and makes the plan. Label unworkable day and time chips with a short reason using `chip-sub` text (never colour alone). Make T040 pass
+- [x] T041 [US3] Implement `earliestReady(now, today)` in a new `src/domain/earliest.ts` and extend `buildPlan` in `src/domain/schedule.ts` (US3 is the only story that edits `schedule.ts` after US1) to set `status: 'tooSoon'` and `earliest` per data-model.md ("`tooSoon` is never an error; it always carries `earliest`"). Implement the fridge shortening rule ("keep the fridge rest between 16 and 24 hours"). Make T039 pass
+- [x] T042 [P] [US3] Create `src/ui/components/banner.ts` with the `.banner` markup (clock icon, `banner-title`, one sentence, one primary button) and a success variant `banner-ok`
+- [x] T043 [US3] In `src/ui/slots/too-soon.ts` show the banner "Not enough time for <day time>" with "This dough needs about 22 hours. The earliest it can be ready is <day time>." and a "Use <day time>" button that sets the request and makes the plan. Label unworkable day and time chips with a short reason using `chip-sub` text (never colour alone). Make T040 pass
 
 **Checkpoint**: US3 works on top of US1.
 
