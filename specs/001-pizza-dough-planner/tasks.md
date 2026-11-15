@@ -166,15 +166,15 @@ description: "Task list for the Pizza Dough Planner"
 
 ### Tests for User Story 5 (write first, confirm they FAIL)
 
-- [ ] T049 [P] [US5] Write FAILING tests in `tests/unit/request.test.ts` for `parseRequest` using the cases in contracts/request-sentence.md: "four 14-inch pizzas for Saturday dinner" gives 4, 14", Saturday, dinner; "2 pizzas tomorrow lunch"; "sixteen inch" gives size only; "pizza night" gives nothing; "four 18-inch pizzas" gives 4 only; digits and number words one to twelve; 0 and 13 are rejected; weekday names full and short; "this Saturday"; the function never throws on empty, very long or odd input; `understood` holds the tag labels
-- [ ] T050 [P] [US5] Write FAILING e2e tests in `tests/e2e/sentence.spec.ts` for quickstart scenario 9 and spec US5 scenarios 1 to 4: a full sentence sets the chips and shows tags; a partly understood sentence sets only those fields; an unreadable one shows "Try: 4 pizzas, 14 inch, Saturday dinner" and changes nothing; with speech unavailable only typing is offered with the keyboard-dictation hint
+- [x] T049 [P] [US5] Write FAILING tests in `tests/unit/request.test.ts` for `parseRequest` using the cases in contracts/request-sentence.md: "four 14-inch pizzas for Saturday dinner" gives 4, 14", Saturday, dinner; "2 pizzas tomorrow lunch"; "sixteen inch" gives size only; "pizza night" gives nothing; "four 18-inch pizzas" gives 4 only; digits and number words one to twelve; 0 and 13 are rejected; weekday names full and short; "this Saturday"; the function never throws on empty, very long or odd input; `understood` holds the tag labels
+- [x] T050 [P] [US5] Write FAILING e2e tests in `tests/e2e/sentence.spec.ts` for quickstart scenario 9 and spec US5 scenarios 1 to 4: a full sentence sets the chips and shows tags; a partly understood sentence sets only those fields; an unreadable one shows "Try: 4 pizzas, 14 inch, Saturday dinner" and changes nothing; with speech unavailable only typing is offered with the keyboard-dictation hint
 
 ### Implementation for User Story 5
 
-- [ ] T051 [US5] Implement `src/domain/request.ts` (`parseRequest(text, today)`) per contracts/request-sentence.md. It never throws and never guesses. Make T049 pass
-- [ ] T052 [P] [US5] Create `src/platform/speech.ts`: `isAvailable()` (looks for `SpeechRecognition` or `webkitSpeechRecognition`), `listen({ onText, onEnd })` started only from a tap and stoppable by a second tap
-- [ ] T053 [P] [US5] Create `src/ui/components/text-field.ts`: `.field` with label "Say or type it", `field-input`, an optional `.mic` button (`aria-label` "Speak your request", `aria-pressed` while listening), `field-status` text "Listening… tap the mic to stop.", the `.tags` row for what was understood, and the one-line note that the browser may send audio to its vendor to recognise it
-- [ ] T054 [US5] Implement `src/ui/slots/sentence.ts` (the text field above the chips). Submitting or finishing speech parses with `parseRequest` and sets only the returned fields in the store. Make T050 pass
+- [x] T051 [US5] Implement `src/domain/request.ts` (`parseRequest(text, today)`) per contracts/request-sentence.md. It never throws and never guesses. Make T049 pass
+- [x] T052 [P] [US5] Create `src/platform/speech.ts`: `isAvailable()` (looks for `SpeechRecognition` or `webkitSpeechRecognition`), `listen({ onText, onEnd })` started only from a tap and stoppable by a second tap
+- [x] T053 [P] [US5] Create `src/ui/components/text-field.ts`: `.field` with label "Say or type it", `field-input`, an optional `.mic` button (`aria-label` "Speak your request", `aria-pressed` while listening), `field-status` text "Listening… tap the mic to stop.", the `.tags` row for what was understood, and the one-line note that the browser may send audio to its vendor to recognise it
+- [x] T054 [US5] Implement `src/ui/slots/sentence.ts` (the text field above the chips). Submitting or finishing speech parses with `parseRequest` and sets only the returned fields in the store. Make T050 pass
 
 **Checkpoint**: US5 works on top of US1.
 
