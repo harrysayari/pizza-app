@@ -1,6 +1,7 @@
 // Step mode: one step per screen, a timer for short waits, a come-back time for the long one.
 
 import { estimateReady } from '../../domain/estimate';
+import { progressCrumbs, stepTimeText } from '../../domain/progress';
 import { formatGrams } from '../../domain/amounts';
 import { formatClock, formatDuration, formatWeekday, type Plan, type Step } from '../../domain/schedule';
 import { localDateOf, systemClock } from '../../platform/clock';
@@ -23,6 +24,7 @@ import {
   startStepTimer,
 } from '../../state/actions/timer';
 import type { AppState } from '../../state/store';
+import { renderCrumbs, updateCrumbTime } from '../components/crumbs';
 import { renderPizzaArt } from '../components/pizza-art';
 import { renderStepCard } from '../components/step-card';
 import { renderTimer, updateTimer, type TimerProps } from '../components/timer';
@@ -61,11 +63,18 @@ function stamp(instant: number, now: number): string {
   return `${same ? '' : `${formatWeekday(instant)} `}${formatClock(instant)}`;
 }
 
-function estimateLine(plan: Plan, state: AppState, now: number): HTMLElement {
+/** Only when running late: "25 min behind. Ready about Mon 7:55 pm". Ahead or on time shows nothing. */
+function lateLine(plan: Plan, state: AppState, now: number): HTMLElement | null {
   const { readyAt, minutesBehind } = estimateReady(plan, state.doneAt, now);
-  const lead =
-    minutesBehind > 0 ? `${minutesBehind} min behind` : minutesBehind < 0 ? `${-minutesBehind} min ahead` : 'On time';
-  return el('p', 'step-estimate', `${lead}. Ready about ${stamp(readyAt, now)}`);
+  return minutesBehind > 0 ? el('p', 'step-estimate', `${minutesBehind} min behind. Ready about ${stamp(readyAt, now)}`) : null;
+}
+
+/** The time shown on the current part of the breadcrumb for this step. */
+function crumbTime(step: Step, state: AppState, now: number): string {
+  const plannedMinutes = Math.round((step.endAt - step.startAt) / 60_000);
+  if (step.kind !== 'wait' || step.long) return stepTimeText({ plannedMinutes, timer: 'idle', remainingMs: 0 });
+  const v = timerView(step, state, now);
+  return stepTimeText({ plannedMinutes, timer: v.state, remainingMs: v.remainingMs });
 }
 
 function controls(state: AppState): HTMLElement {
@@ -117,7 +126,9 @@ export function renderStepsScreen(state: AppState): HTMLElement {
   const step = plan.steps[index]!;
   const allDone = plan.steps.every((s) => state.doneAt[s.id] !== undefined);
 
-  main.append(estimateLine(plan, state, now));
+  main.append(renderCrumbs(progressCrumbs(plan, allDone ? total : index), allDone ? '' : crumbTime(step, state, now)));
+  const late = lateLine(plan, state, now);
+  if (late) main.append(late);
 
   if (allDone) {
     const finished = el('div', 'stack');
@@ -144,7 +155,11 @@ export function renderStepsScreen(state: AppState): HTMLElement {
       extra = timer;
       setFrameListener(() => {
         const live = document.querySelector<HTMLElement>('.timer');
-        if (live && view.state === 'running') updateTimer(live, timerView(step, state, systemClock.now()));
+        if (live && view.state === 'running') {
+          const t = systemClock.now();
+          updateTimer(live, timerView(step, state, t));
+          updateCrumbTime(document, crumbTime(step, state, t));
+        }
       });
     } else if (step.kind === 'wait') {
       const minutes = Math.round((step.endAt - step.startAt) / 60_000);

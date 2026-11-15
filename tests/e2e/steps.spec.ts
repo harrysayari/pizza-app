@@ -71,7 +71,7 @@ test('scenario 6: the fridge step shows "Come back at" and no countdown', async 
 
 test('scenario 7: finishing a step 25 minutes late shows "25 min behind" and a new ready time', async ({ page }) => {
   await openSteps(page);
-  await expect(page.getByText(/On time\. Ready about Mon 7:30 pm/)).toBeVisible();
+  await expect(page.getByText(/min behind|min ahead|On time/)).toHaveCount(0); // nothing shown unless running late
   await page.clock.fastForward(28 * MIN); // step 1 was due to end 3 minutes after it started
   await done(page).click();
   await expect(page.getByText('25 min behind')).toBeVisible();
@@ -194,4 +194,21 @@ test('step screen meets tap, text and contrast rules in both themes', async ({ p
   await page.clock.fastForward(15 * MIN);
   await expect(page.getByText('Time is up').first()).toBeVisible();
   await expectNoAxeViolations(page);
+});
+
+test('breadcrumb: Poolish > Rest > Final dough > Final rest, with the time for the current part', async ({ page }) => {
+  await openSteps(page);
+  const crumbs = page.getByRole('navigation', { name: 'Progress' });
+  await expect(crumbs.locator('.crumb-name')).toHaveText(['Poolish', 'Rest', 'Final dough', 'Final rest']);
+  await expect(crumbs.locator('[aria-current="step"]')).toContainText('Poolish');
+  await expect(crumbs.locator('.crumb-time')).toHaveText('3 min');
+
+  await done(page).click(); // step 2: the 15 minute rest, part "Rest"
+  await expect(crumbs.locator('[aria-current="step"]')).toContainText('Rest');
+  await expect(crumbs.getByText('Poolish')).toContainText('done'); // a hidden "(done)" for screen readers
+  await expect(crumbs.locator('.crumb-time')).toHaveText('15 min');
+
+  await page.getByRole('button', { name: 'Start' }).click();
+  await page.clock.fastForward(5 * MIN);
+  await expect(crumbs.locator('.crumb-time')).toHaveText('10 min more');
 });

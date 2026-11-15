@@ -41,6 +41,57 @@ self.addEventListener('notificationclick', (event) => {
   );
 });
 
+// A push from the reminder service (spec 002, US3). The message is fixed: { v, kind, stepId, title, silent }.
+// If a visible page is open it already shows the alert, so nothing is shown here. The page also writes
+// the wait ends it currently wants to IndexedDB; a push for an end that is no longer there (paused,
+// finished early) shows nothing.
+function liveEnds() {
+  return new Promise((resolve) => {
+    try {
+      const open = indexedDB.open('pdp-live', 1);
+      open.onupgradeneeded = () => open.result.createObjectStore('kv');
+      open.onerror = () => resolve(null);
+      open.onsuccess = () => {
+        const get = open.result.transaction('kv').objectStore('kv').get('ends');
+        get.onsuccess = () => {
+          open.result.close();
+          resolve(Array.isArray(get.result) ? get.result : null);
+        };
+        get.onerror = () => resolve(null);
+      };
+    } catch (e) {
+      resolve(null);
+    }
+  });
+}
+
+self.addEventListener('push', (event) => {
+  let msg = null;
+  try {
+    msg = event.data ? event.data.json() : null;
+  } catch (e) {
+    msg = null;
+  }
+  if (!msg || msg.v !== 1 || typeof msg.stepId !== 'string') return;
+  event.waitUntil(
+    Promise.all([self.clients.matchAll({ type: 'window', includeUncontrolled: true }), liveEnds()]).then(([windows, live]) => {
+      const visible = windows.filter((w) => w.visibilityState === 'visible');
+      if (visible.length > 0) {
+        for (const w of visible) w.postMessage({ type: 'pdp-timer-ended', stepId: msg.stepId });
+        return undefined;
+      }
+      if (live !== null && !live.some((e) => e.stepId === msg.stepId)) return undefined;
+      return self.registration.showNotification('Time is up', {
+        body: String(msg.title || ''),
+        tag: 'pdp-' + msg.stepId,
+        renotify: msg.kind === 'repeat' && !msg.silent,
+        silent: msg.silent === true,
+        data: { stepId: msg.stepId },
+      });
+    }),
+  );
+});
+
 self.addEventListener('fetch', (event) => {
   const request = event.request;
   if (request.method !== 'GET' || new URL(request.url).origin !== self.location.origin) return;

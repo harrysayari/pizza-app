@@ -1,0 +1,35 @@
+{
+  "name": "pizza-dough-planner/reminder-service",
+  "description": "Optional reminder service for Pizza Dough Planner timer-end notifications (spec 002).",
+  "type": "project",
+  "license": "proprietary",
+  "require": {
+    "php": ">=8.2",
+    "ext-json": "*",
+    "ext-pdo_sqlite": "*",
+    "guzzlehttp/guzzle": "^8.5",
+    "minishlink/web-push": "^11.0"
+  },
+  "config": {
+    "platform": {
+      "php": "8.2.0"
+    },
+    "sort-packages": true
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^11.5"
+  },
+  "autoload": {
+    "psr-4": {
+      "Pdp\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Pdp\\Tests\\": "tests/"
+    }
+  },
+  "scripts": {
+    "test": "phpunit"
+  }
+}

@@ -2,6 +2,7 @@
 // browser when a timer ends while the page is in the background. The permission prompt is only ever
 // requested from turnOn(), which the control calls from a tap (FR-007).
 
+import { desiredReminders, diffReminders, type Reminder } from '../../domain/reminders';
 import type { Plan } from '../../domain/schedule';
 import { systemClock, type Clock } from '../../platform/clock';
 import * as notifications from '../../platform/notifications';
@@ -36,13 +37,94 @@ function setNotify(store: Store, on: boolean): void {
 /** Ask the browser for permission, then turn notifications on if it was given. Call from a tap. */
 export async function turnOn(store: Store = appStore): Promise<void> {
   const result = await notifications.request();
-  if (result === 'granted') setNotify(store, true);
-  else store.update({});
+  if (result === 'granted') {
+    setNotify(store, true);
+    await syncReminders(store);
+  } else store.update({});
 }
 
 export function turnOff(store: Store = appStore): void {
   setNotify(store, false);
   void notifications.close();
+  void forgetReminders();
+}
+
+// ---- The reminder service (US3). Optional: with no public key, no subscription or the service down,
+// everything above keeps working on the page's own timers. ----
+
+const VAPID_KEY = (import.meta.env?.VITE_VAPID_PUBLIC_KEY as string | undefined) ?? '';
+const ENDPOINT = './api/reminders';
+let lastSent: Reminder[] | null = null;
+/** True while the service holds this device's reminders; the local notification then stays quiet (no doubles). */
+let pushActive = false;
+let inFlight = false;
+let again = false;
+
+async function call(method: 'PUT' | 'DELETE', body: unknown): Promise<boolean> {
+  try {
+    const res = await fetch(ENDPOINT, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    return res.status === 204;
+  } catch {
+    return false;
+  }
+}
+
+/** Send the whole wanted set when it changed (replace semantics: any cancel is just a smaller set). */
+export async function syncReminders(store: Store = appStore, clock: Clock = systemClock): Promise<void> {
+  if (VAPID_KEY === '') return;
+  if (inFlight) {
+    again = true;
+    return;
+  }
+  inFlight = true;
+  try {
+    do {
+      again = false;
+      const s = store.getState();
+      const plan = s.plan as Plan | null;
+      const on = plan !== null && controlState(s.preferences).state === 'on';
+      const sub = on ? await notifications.subscribe(VAPID_KEY) : null;
+      const next = on && sub !== null
+        ? desiredReminders({
+            steps: plan!.steps,
+            timer: s.timer,
+            doneAt: s.doneAt,
+            snoozes: s.snoozes ?? {},
+            currentStepId: s.progress.currentStepId ?? null,
+            muted: s.preferences.muted,
+            enabled: true,
+            now: clock.now(),
+          })
+        : [];
+      notifications.recordLive(next);
+      if (sub === null) {
+        pushActive = false;
+        continue;
+      }
+      // First sync after load always sends, even an empty set, so stale entries are replaced.
+      if (lastSent !== null && !diffReminders(lastSent, next)) continue;
+      const ok = await call('PUT', { subscription: sub.toJSON(), reminders: next });
+      lastSent = ok ? next : null;
+      pushActive = ok;
+    } while (again);
+  } finally {
+    inFlight = false;
+  }
+  syncNotifications(store, clock);
+}
+
+/** Tell the service to forget this device (turning notifications off, Clear saved data). */
+export async function forgetReminders(): Promise<void> {
+  lastSent = null;
+  notifications.recordLive([]);
+  const sub = await notifications.getSubscription();
+  if (sub !== null) await call('DELETE', { endpoint: sub.endpoint });
+  pushActive = false;
+  await notifications.unsubscribe();
 }
 
 /** Open step mode on the step a notification was about. Does nothing without a plan or for an unknown id. */
@@ -78,7 +160,7 @@ function wanted(store: Store, now: number): { key: string; stepId: string; title
   const s = store.getState();
   const plan = s.plan as Plan | null;
   if (plan === null || s.timer === null || s.timer.state !== 'running') return null;
-  if (controlState(s.preferences).state !== 'on') return null;
+  if (pushActive || controlState(s.preferences).state !== 'on') return null;
   const step = plan.steps.find((x) => x.id === s.timer!.stepId);
   if (step === undefined || s.doneAt[step.id] !== undefined || s.timer.endAt <= now - REPEAT_MS) return null;
   return { key: `${step.id}:${s.timer.endAt}`, stepId: step.id, title: step.title, endAt: s.timer.endAt };
@@ -121,7 +203,10 @@ export function installNotifyEffects(store: Store = appStore, clock: Clock = sys
   if (installed) return;
   installed = true;
   try {
-    store.subscribe(() => syncNotifications(store, clock));
+    store.subscribe(() => {
+      syncNotifications(store, clock);
+      void syncReminders(store, clock);
+    });
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState !== 'visible') return;
       // Opening the app takes the notification away and cancels the repeat.
@@ -134,6 +219,7 @@ export function installNotifyEffects(store: Store = appStore, clock: Clock = sys
       if (data?.type === 'pdp-open') openStepFromNotification(data.stepId, store);
     });
     syncNotifications(store, clock);
+    void syncReminders(store, clock);
   } catch {
     // Without these the in-page alert still works.
   }

@@ -8,3 +8,8 @@ playwright-report/
 .env.deploy
 .env.deploy.*
 !.env.deploy.example
+
+# Reminder service (spec 002)
+service/vendor/
+service/config.php
+service/data/*.sqlite*

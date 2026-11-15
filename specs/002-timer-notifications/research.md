@@ -10,6 +10,11 @@ Decisions for the plan. Each fact is marked **Verified** (read from a primary so
   - PHP is available on DreamHost shared hosting, with several versions selectable in the panel, and cURL is installed on all servers (**Verified**, DreamHost PHP version article and software table).
   - DreamHost's cron article describes the syntax and says jobs run on the server's Pacific time, but states **no minimum interval** (**Verified** that it is not documented). Other hosts reset every-minute jobs to every 15 minutes, and DreamPress (the WordPress product) defaults to 15 minutes with an option to ask support (**Verified** as reported; different product).
   - Whether shared hosting allows outbound HTTPS from PHP or cron to the push services: **Unverified**.
+- **Spike S0 result (2026-11-15, run by the owner on the real account, a DreamPress-style host `dp-…dreamhostps.com`)**: **PASS on all three.**
+  1. PHP 8.4.27 (cli) with openssl, curl (https), mbstring, pdo_sqlite, json and bcmath (no gmp, which the push library does not require), 256M memory.
+  2. Outbound HTTPS works to `fcm.googleapis.com` (HTTP 404), `updates.push.services.mozilla.com` (406) and `web.push.apple.com` (405). Any status counts as reachable.
+  3. User cron `* * * * *` ran once a minute: 4 ticks, every gap 60 s.
+  Not yet shown: that the every-minute schedule keeps running for hours and days (the sample was 4 minutes). The service build adds a heartbeat check for this (see tasks T045).
 - **Rationale**: Same host means no new account, no cost, no cross-site requests, and nothing outside the project's own hosting (constitution IX exception). PHP is the one server language the plan can rely on there.
 - **Alternatives considered**:
   - *Managed VPS (DreamHost)*: allows a long-running Node process with exact timers, but is a paid upgrade and an always-on server to maintain.

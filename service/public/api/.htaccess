@@ -1,0 +1,2 @@
+# Only reminders.php answers here. Methods other than PUT and DELETE are refused by the script.
+Options -Indexes

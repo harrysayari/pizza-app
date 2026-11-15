@@ -7,6 +7,7 @@ import { localDateOf, systemClock, type Clock } from '../platform/clock';
 import { openStepFromNotification } from './actions/notify';
 import { setRequest } from './actions/plan';
 import { setMuted } from './actions/timer';
+import { forgetReminders } from './actions/notify';
 import { clearAll, clearPlan, flush, load, save, type PersistEnv } from './persistence';
 import { readLink, type LinkChoices } from './share-link';
 import { initialState, store as appStore, type Store } from './store';
@@ -68,6 +69,7 @@ export function startNewPlan(store: Store = appStore, env: HydrateEnv = {}): voi
 /** Clear saved data: removes everything remembered on the device, preferences included. */
 export function clearSavedData(store: Store = appStore, env: HydrateEnv = {}): void {
   sharedChoice = null;
+  void forgetReminders();
   clearAll(env);
   store.update({ ...initialState() });
   setMuted(false, store);

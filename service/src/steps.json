@@ -1,0 +1,58 @@
+[
+  {
+    "id": "poolish-mix",
+    "title": "Mix the poolish"
+  },
+  {
+    "id": "poolish-rest-open",
+    "title": "Rest uncovered"
+  },
+  {
+    "id": "poolish-rest-sealed",
+    "title": "Seal it and rest"
+  },
+  {
+    "id": "poolish-fridge",
+    "title": "Into the fridge"
+  },
+  {
+    "id": "poolish-warm",
+    "title": "Poolish out of the fridge"
+  },
+  {
+    "id": "final-flours",
+    "title": "Add the flours"
+  },
+  {
+    "id": "final-water",
+    "title": "Add the salt water slowly"
+  },
+  {
+    "id": "final-mix",
+    "title": "Mix the dough"
+  },
+  {
+    "id": "final-work",
+    "title": "Work the dough into a ball"
+  },
+  {
+    "id": "final-oil-rest",
+    "title": "Oil the surface and rest"
+  },
+  {
+    "id": "final-form",
+    "title": "Form a smooth ball"
+  },
+  {
+    "id": "final-bulk",
+    "title": "Cover with a towel and rest"
+  },
+  {
+    "id": "final-portion",
+    "title": "Cut into balls"
+  },
+  {
+    "id": "final-proof",
+    "title": "Cover and rest"
+  }
+]
