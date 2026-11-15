@@ -1,6 +1,8 @@
 import { defineConfig, devices } from '@playwright/test';
 
-const PORT = 4173;
+declare const process: { env: Record<string, string | undefined> };
+
+const PORT = Number(process.env.E2E_PORT ?? 4173);
 
 export default defineConfig({
   testDir: 'tests/e2e',
@@ -18,6 +20,6 @@ export default defineConfig({
   webServer: {
     command: `npm run build && npm run preview -- --port ${PORT} --strictPort`,
     port: PORT,
-    reuseExistingServer: true,
+    reuseExistingServer: !process.env.CI && !process.env.E2E_PORT,
   },
 });
