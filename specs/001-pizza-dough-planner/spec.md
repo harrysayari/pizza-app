@@ -167,7 +167,8 @@ The cook can close the page and return later to the same plan and timers, share 
 - **FR-012**: The schedule MUST follow the reference recipe's order and waiting times, and keep the fridge rest between 16 and 24 hours.
 - **FR-013**: If the chosen bake time leaves less than the minimum lead time (about 22 hours), the product MUST show the earliest possible ready time with a one-tap way to use it, and MUST NOT show an error dead end.
 - **FR-014**: Changing any choice MUST update the amounts and times immediately.
-- **FR-041**: The schedule's steps MUST be shown in two parts that the user can open and close: Part 1, Poolish (the steps up to and including the fridge rest), and Part 2, Final dough (the steps after the fridge). Each part MUST show its total time in hours and minutes and when it starts and ends, and the schedule MUST show the total time from the first step to the bake. Opening or closing a part MUST NOT change any time, and MUST be kept when the screen redraws.
+- **FR-041**: The schedule's steps MUST be shown in four parts that the user can open and close: Part 1, Poolish (mix the poolish); Part 2, Rest (on the counter, in the fridge, then out of the fridge for an hour); Part 3, Make the final dough (flours, salt water, mix, work into a ball); and Part 4, Rest (rest, shape, cut and prove until bake time). Each part MUST show its total time in hours and minutes and when it starts and ends, and the schedule MUST show the total time from the first step to the bake. Opening or closing a part MUST NOT change any time, and MUST be kept when the screen redraws.
+- **FR-042**: When every step is done, step-by-step mode MUST say "Your dough is ready" and show a decorative pizza drawing that uses the colour tokens in both themes. The drawing MUST be hidden from screen readers, because the heading says the same thing in words.
 
 **Step-by-step mode**
 

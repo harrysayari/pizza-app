@@ -154,18 +154,24 @@ test('the stepper stops at 12', async ({ page }) => {
   await expect(page.getByRole('button', { name: 'One more pizza' })).toBeDisabled();
 });
 
-// FR-041: the steps are grouped in two collapsible parts with their hours.
-test('FR-041: the steps come in two parts, each with its hours, split at the fridge', async ({ page }) => {
+// FR-041: the steps are grouped in four collapsible parts with their hours.
+test('FR-041: the steps come in four parts, each with its hours', async ({ page }) => {
   await planSaturdayDinner(page);
   const parts = page.locator('details.tl-group');
-  await expect(parts).toHaveCount(2);
-  await expect(parts.nth(0).locator('summary')).toContainText('Part 1: Poolish');
-  await expect(parts.nth(0).locator('summary')).toContainText('19 hr 18 min');
-  await expect(parts.nth(0).locator('li.tl-item')).toHaveCount(4);
-  await expect(parts.nth(0).locator('li.tl-item').last().locator('.tl-title')).toHaveText('Into the fridge');
-  await expect(parts.nth(1).locator('summary')).toContainText('Part 2: Final dough');
-  await expect(parts.nth(1).locator('summary')).toContainText('4 hr 35 min');
-  await expect(parts.nth(1).locator('li.tl-item')).toHaveCount(10);
+  await expect(parts).toHaveCount(4);
+  const expected = [
+    ['Part 1: Poolish', '3 min', 1],
+    ['Part 2: Rest', '20 hr 15 min', 4],
+    ['Part 3: Make the final dough', '35 min', 4],
+    ['Part 4: Rest', '3 hr', 5],
+  ] as const;
+  for (const [i, [title, hours, count]] of expected.entries()) {
+    await expect(parts.nth(i).locator('summary')).toContainText(title);
+    await expect(parts.nth(i).locator('.tl-group-hours')).toHaveText(hours);
+    await expect(parts.nth(i).locator('li.tl-item')).toHaveCount(count);
+  }
+  await expect(parts.nth(1).locator('summary')).toContainText('On the counter, in the fridge, then out for 1 hr');
+  await expect(parts.nth(1).locator('li.tl-item').nth(2).locator('.tl-title')).toHaveText('Into the fridge');
   await expect(page.locator('li.tl-item')).toHaveCount(14);
   await expect(page.getByText('Total 23 hr 53 min')).toBeVisible();
 });
@@ -190,7 +196,7 @@ test('FR-041: each part opens and closes with a tap or the keyboard, and stays t
 test('FR-041: part headers are at least 48px tall, text is 16px or more, and axe is clean in both themes', async ({ page }) => {
   await planSaturdayDinner(page);
   const heads = page.locator('details.tl-group > summary');
-  for (let i = 0; i < 2; i++) {
+  for (let i = 0; i < 4; i++) {
     const box = (await heads.nth(i).boundingBox())!;
     expect(box.height).toBeGreaterThanOrEqual(48);
   }

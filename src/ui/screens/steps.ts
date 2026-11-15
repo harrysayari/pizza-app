@@ -23,6 +23,7 @@ import {
   startStepTimer,
 } from '../../state/actions/timer';
 import type { AppState } from '../../state/store';
+import { renderPizzaArt } from '../components/pizza-art';
 import { renderStepCard } from '../components/step-card';
 import { renderTimer, updateTimer, type TimerProps } from '../components/timer';
 import { renderToggle } from '../components/toggle';
@@ -119,6 +120,8 @@ export function renderStepsScreen(state: AppState): HTMLElement {
   if (allDone) {
     const finished = el('div', 'stack');
     finished.append(
+      el('h2', undefined, 'Your dough is ready'),
+      renderPizzaArt(),
       el('p', 'step-text', `All ${total} steps are done. Bake at ${stamp(plan.bakeAt, now)}.`),
       button('Back', 'btn btn-secondary btn-block', 'step:back', () => backStep()),
     );

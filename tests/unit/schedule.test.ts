@@ -146,36 +146,39 @@ describe('daylight saving', () => {
   }
 });
 
-describe('planParts (FR-041: the schedule in two parts, split at the fridge)', () => {
-  it('splits into Poolish (steps 1 to 4, ending with the fridge) and Final dough (steps 5 to 14)', () => {
+describe('planParts (FR-041: the schedule in four parts)', () => {
+  const ids = (xs: { id: string }[]) => xs.map((x) => x.id);
+
+  it('splits into Poolish, Rest, Make the final dough and Rest', () => {
     const p = buildPlan(req(), NOW);
     const parts = planParts(p);
-    expect(parts.map((x) => x.id)).toEqual(['poolish', 'final']);
-    expect(parts.map((x) => x.steps.length)).toEqual([4, 10]);
-    expect(parts[0]!.steps.at(-1)!.id).toBe('poolish-fridge');
-    expect(parts[1]!.steps[0]!.id).toBe('poolish-warm');
-    expect([...parts[0]!.steps, ...parts[1]!.steps]).toEqual(p.steps);
+    expect(parts.map((x) => x.id)).toEqual(['poolish', 'rest-poolish', 'make-dough', 'rest-dough']);
+    expect(parts.map((x) => x.steps.length)).toEqual([1, 4, 4, 5]);
+    expect(ids(parts[0]!.steps)).toEqual(['poolish-mix']);
+    expect(ids(parts[1]!.steps)).toEqual(['poolish-rest-open', 'poolish-rest-sealed', 'poolish-fridge', 'poolish-warm']);
+    expect(ids(parts[2]!.steps)).toEqual(['final-flours', 'final-water', 'final-mix', 'final-work']);
+    expect(ids(parts[3]!.steps)).toEqual(['final-oil-rest', 'final-form', 'final-bulk', 'final-portion', 'final-proof']);
+    expect(parts.flatMap((x) => x.steps)).toEqual(p.steps);
   });
 
-  it('gives each part its hours: 19 hr 18 min before the final dough, 4 hr 35 min after', () => {
-    const [a, b] = planParts(buildPlan(req(), NOW));
-    expect(a!.minutes).toBe(3 + 15 + 60 + 1080);
-    expect(b!.minutes).toBe(60 + 5 + 5 + 15 + 10 + 15 + 5 + 60 + 10 + 90);
+  it('gives each part its minutes: 3, 1,215 (20 hr 15 min), 35 and 180', () => {
+    const parts = planParts(buildPlan(req(), NOW));
+    expect(parts.map((x) => x.minutes)).toEqual([3, 15 + 60 + 1080 + 60, 5 + 5 + 15 + 10, 15 + 5 + 60 + 10 + 90]);
   });
 
-  it('runs back to back: part one ends where part two starts, and part two ends at the bake time', () => {
+  it('runs back to back, ends at the bake time, and adds up to the whole plan', () => {
     const p = buildPlan(req(), NOW);
-    const [a, b] = planParts(p);
-    expect(a!.startAt).toBe(p.steps[0]!.startAt);
-    expect(a!.endAt).toBe(b!.startAt);
-    expect(b!.endAt).toBe(p.bakeAt);
-    expect(a!.minutes + b!.minutes).toBe(Math.round((p.bakeAt - p.steps[0]!.startAt) / MIN));
+    const parts = planParts(p);
+    expect(parts[0]!.startAt).toBe(p.steps[0]!.startAt);
+    for (let i = 0; i < parts.length - 1; i++) expect(parts[i]!.endAt).toBe(parts[i + 1]!.startAt);
+    expect(parts.at(-1)!.endAt).toBe(p.bakeAt);
+    expect(parts.reduce((a, x) => a + x.minutes, 0)).toBe(Math.round((p.bakeAt - p.steps[0]!.startAt) / MIN));
   });
 
-  it('follows a shortened fridge rest', () => {
-    const p = buildPlan(req(), NOW, { fridgeMinutes: 960 });
-    const [a, b] = planParts(p);
-    expect(a!.minutes).toBe(78 + 960);
-    expect(b!.minutes).toBe(275);
+  it('has a short note for each part and follows a shortened fridge rest', () => {
+    const parts = planParts(buildPlan(req(), NOW, { fridgeMinutes: 960 }));
+    for (const part of parts) expect(part.note.length).toBeGreaterThan(0);
+    expect(parts[1]!.minutes).toBe(15 + 60 + 960 + 60);
+    expect(parts[1]!.note).toMatch(/fridge/i);
   });
 });

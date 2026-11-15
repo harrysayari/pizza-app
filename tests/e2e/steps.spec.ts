@@ -230,8 +230,26 @@ test('Back goes to the previous step and Done on the last step finishes', async 
   await nextSteps(page, 1);
   await page.getByRole('button', { name: 'Back', exact: true }).click();
   await expect(page.getByText('Step 1 of 14')).toBeVisible();
+  await expect(page.locator('[data-art="pizza"]')).toHaveCount(0); // not before the dough is ready
   await nextSteps(page, 14);
   await expect(page.getByText(/All 14 steps are done/)).toBeVisible();
+});
+
+test('when the dough is ready the last screen shows a pizza drawing and says so', async ({ page }) => {
+  await openSteps(page);
+  await nextSteps(page, 14);
+  await expect(page.getByRole('heading', { name: 'Your dough is ready' })).toBeVisible();
+  const art = page.locator('[data-art="pizza"]');
+  await expect(art).toBeVisible();
+  await expect(art).toHaveAttribute('aria-hidden', 'true'); // decorative; the heading says it in words
+  const box = (await art.boundingBox())!;
+  expect(box.width).toBeGreaterThanOrEqual(160);
+  expect(box.width).toBeLessThanOrEqual(390);
+  // Drawn from the colour tokens: the sauce takes the theme's tomato colour, not a fixed value.
+  const fills = async () => art.locator('.pizza-sauce').evaluate((e) => getComputedStyle(e).fill);
+  const light = await fills();
+  await page.evaluate(() => document.documentElement.setAttribute('data-theme', 'dark'));
+  expect(await fills()).not.toBe(light);
 });
 
 test('FR-022: the alert note is shown and no copy promises alerts on a locked or closed page', async ({ page }) => {

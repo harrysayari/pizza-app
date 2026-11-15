@@ -227,8 +227,9 @@ description: "Task list for the Pizza Dough Planner"
 
 - [x] T078 Analysis finding C1: add `isLargeBatch` (over 3,000 g) to `src/domain/amounts.ts` and show a plain note on the schedule screen (`src/ui/screens/schedule.ts`), with unit tests in `tests/unit/amounts.test.ts` and e2e tests in `tests/e2e/plan.spec.ts`
 - [x] T079 Analysis finding C2: raise `.chip-sub` in `design/components.css` from 14px to 16px so ball weights meet `rules.md`, and make `expectTextSizes` check `.chip-sub`, `.ing-amount` and `.amount`
-- [x] T080 FR-041: add `planParts(plan)` to `src/domain/schedule.ts` (Poolish up to and including the fridge, then Final dough) with unit tests in `tests/unit/schedule.test.ts`
-- [x] T081 FR-041: show the steps on the schedule screen in two `details` groups with title, hours, start and end, plus a total line, with styles in `src/styles/app.css` (tokens only) and e2e tests in `tests/e2e/plan.spec.ts` (hours, open and close by tap and keyboard, state kept across a redraw, 48px headers, 16px text, axe)
+- [x] T080 FR-041: `planParts(plan)` in `src/domain/schedule.ts` returns four parts (Poolish; Rest; Make the final dough; Rest), each with a note and total minutes, with unit tests in `tests/unit/schedule.test.ts`
+- [x] T081 FR-041: the schedule screen shows the four parts in `details` groups with title, hours, note and start and end, plus a total line, styled in `src/styles/app.css` from tokens, with e2e tests in `tests/e2e/plan.spec.ts` (hours, open and close by tap and keyboard, state kept across a redraw, 48px headers, 16px text, axe)
+- [x] T082 FR-042: `src/ui/components/pizza-art.ts` draws a pizza from tokens, shown with the heading "Your dough is ready" on the all-steps-done screen in `src/ui/screens/steps.ts`, with an e2e test in `tests/e2e/steps.spec.ts`
 
 ---
 

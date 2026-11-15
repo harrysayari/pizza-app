@@ -179,11 +179,13 @@ export function formatDuration(minutes: number): string {
   return m === 0 ? `${h} hr` : `${h} hr ${m} min`;
 }
 
-export type PartId = 'poolish' | 'final';
+export type PartId = 'poolish' | 'rest-poolish' | 'make-dough' | 'rest-dough';
 
 export interface PlanPart {
   id: PartId;
   title: string;
+  /** One short line saying what happens in this part. */
+  note: string;
   steps: Step[];
   startAt: Instant;
   endAt: Instant;
@@ -191,20 +193,35 @@ export interface PlanPart {
   minutes: number;
 }
 
-/**
- * The plan in two parts, split at the fridge (FR-041): the poolish part ends with the fridge rest,
- * the final dough part starts when the poolish comes out. Steps are not copied or changed.
- */
+/** Each part ends at the step named in `last`; the steps are never copied or changed. */
+const PART_DEFS: readonly { id: PartId; title: string; note: string; last: string }[] = [
+  { id: 'poolish', title: 'Part 1: Poolish', note: 'Mix the poolish by hand.', last: 'poolish-mix' },
+  { id: 'rest-poolish', title: 'Part 2: Rest', note: 'On the counter, in the fridge, then out for 1 hr.', last: 'poolish-warm' },
+  { id: 'make-dough', title: 'Part 3: Make the final dough', note: 'Flours, salt water, mix and work into a ball.', last: 'final-work' },
+  { id: 'rest-dough', title: 'Part 4: Rest', note: 'Rest, shape, cut and prove until bake time.', last: 'final-proof' },
+];
+
+/** The plan in four parts for the schedule screen (FR-041), each with its own total time. */
 export function planParts(plan: Plan): PlanPart[] {
-  const cut = plan.steps.findIndex((s) => s.id === 'poolish-fridge') + 1;
-  const make = (id: PartId, title: string, steps: Step[]): PlanPart | null => {
+  const parts: PlanPart[] = [];
+  let from = 0;
+  for (const def of PART_DEFS) {
+    const at = plan.steps.findIndex((s) => s.id === def.last);
+    if (at < from) continue;
+    const steps = plan.steps.slice(from, at + 1);
+    from = at + 1;
     const first = steps[0];
     const last = steps.at(-1);
-    if (!first || !last) return null;
-    return { id, title, steps, startAt: first.startAt, endAt: last.endAt, minutes: Math.round((last.endAt - first.startAt) / 60_000) };
-  };
-  return [
-    make('poolish', 'Part 1: Poolish', plan.steps.slice(0, cut)),
-    make('final', 'Part 2: Final dough, after the fridge', plan.steps.slice(cut)),
-  ].filter((x): x is PlanPart => x !== null);
+    if (!first || !last) continue;
+    parts.push({
+      id: def.id,
+      title: def.title,
+      note: def.note,
+      steps,
+      startAt: first.startAt,
+      endAt: last.endAt,
+      minutes: Math.round((last.endAt - first.startAt) / 60_000),
+    });
+  }
+  return parts;
 }

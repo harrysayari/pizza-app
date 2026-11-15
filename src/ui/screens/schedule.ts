@@ -121,6 +121,7 @@ function renderTimeline(plan: Plan, doneAt: Record<string, number>, now: number)
     head.append(
       el('span', 'tl-group-title', part.title),
       el('span', 'tl-group-hours', formatDuration(part.minutes)),
+      el('span', 'tl-group-note', part.note),
       el('span', 'tl-group-window', windowText(part.startAt, part.endAt)),
     );
     group.append(head, list);
