@@ -160,6 +160,24 @@ for (const icon of manifest.icons ?? []) {
   console.log(`check-budget: base path ok (${list.length} precache entries, all relative)`);
 }
 
+
+// ---- 3. Reminder service key (only when one is set) ----
+// An empty key turns the reminder service off, which is allowed. A set key must look like a VAPID
+// public key (65 bytes, base64url) and must really be in the build.
+import { existsSync } from 'node:fs';
+const envFile = join(ROOT, '.env.production');
+const keyLine = existsSync(envFile) ? readFileSync(envFile, 'utf8').split('\n').find((l) => l.startsWith('VITE_VAPID_PUBLIC_KEY=')) : undefined;
+const vapid = keyLine ? keyLine.slice('VITE_VAPID_PUBLIC_KEY='.length).trim() : '';
+if (vapid === '') {
+  console.log('check-budget: no VAPID key set, the reminder service is off in this build');
+} else {
+  if (!/^[A-Za-z0-9_-]{87}$/.test(vapid)) failures.push('VITE_VAPID_PUBLIC_KEY is not a 65-byte base64url key (87 characters)');
+  let found = false;
+  for (const file of walk(DIST)) if (/\.m?js$/.test(file) && readFileSync(file, 'utf8').includes(vapid)) found = true;
+  if (!found) failures.push('VITE_VAPID_PUBLIC_KEY is set but is not in the built JavaScript');
+  else console.log('check-budget: VAPID public key is in the build');
+}
+
 if (failures.length > 0) {
   console.error('check-budget failed:');
   for (const f of failures) console.error('  ' + f);

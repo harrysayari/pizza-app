@@ -27,7 +27,7 @@ description: "Task list for Timer-End Notifications"
 ## Phase 1: Setup
 
 - [x] T001 Add the additive field `prefs.notify` (`"off" | "on"`, default `off`, older saved data reads as `off`) to the saved-state shape in `src/state/persistence.ts` and `src/state/store.ts` (the saved shape lives there, not in a `saved-state.ts`; `notify` is stored only when `on`), plus `snoozes` and the timer's `ack` flag, with unit tests in `tests/unit/persistence.test.ts` (round trip, old object without the field, bad value falls back to `off`)
-- [ ] T002 [P] Add `scripts/export-step-ids.mjs` that writes the 14 step ids and titles from `src/domain/recipe.ts` to `service/src/steps.json` (the only source for the service's fixed list), and a `npm run steps` script; a PHPUnit test in T042 fails if the file is stale
+- [x] T002 [P] Add `scripts/export-step-ids.mjs` that writes the 14 step ids and titles from `src/domain/recipe.ts` to `service/src/steps.json` (the only source for the service's fixed list), and a `npm run steps` script; a PHPUnit test in T042 fails if the file is stale
 
 ## Phase 2: Foundational (blocks all stories)
 
@@ -65,30 +65,30 @@ description: "Task list for Timer-End Notifications"
 **Gate**: T040 passed (2026-11-15). The owner must still approve D4 (dependencies) before T041 onward.
 
 - [x] T040 [US3] Spike S0 with the owner on DreamHost (quickstart S0): per-minute cron, outbound HTTPS to FCM and Apple, PHP extensions. PASS on 2026-11-15, recorded in `research.md` R1 (scripts in `spike/`)
-- [ ] T041 [US3] After approval (D4): create `service/composer.json` with `minishlink/web-push` and PHPUnit (dev); commit `composer.lock`
-- [ ] T042 [P] [US3] Failing PHPUnit tests in `service/tests/` for every rule in contracts/reminders-api.md: valid and invalid bodies (400), 2 KB cap (413), 5,000-row cap (429), allowed push domains by exact host match only (host equals the domain or ends with `.domain`; https only; no userinfo or non-default port; look-alikes such as `https://evil.example/?fcm.googleapis.com` and `fcm.googleapis.com.evil.example` are rejected), a test that asserts the stored columns are exactly those in data-model.md and nothing else is kept (SC-009), at most 4 reminders, `endAt` window (-60 s to 48 h), unknown fields rejected, replace semantics, `DELETE` returns 204 always
-- [ ] T043 [US3] Implement `service/public/api/reminders.php`, `service/src/` (store, validation, fixed step list), and `service/public/api/.htaccess`. Store only the columns in data-model.md; no IP, no user agent, no request log
-- [ ] T044 [P] [US3] Failing PHPUnit tests with a mock push server for `send-due.php`: sends at `end_at` and never early, repeat at `end_at + 300 s` once, silent flag, 404 or 410 deletes the row, rows over 24 h past `end_at` purged, a sync that no longer lists the step deletes the row so the pending repeat is never sent (SC-006), the payload decrypts to exactly `{v, kind, stepId, title, silent}`
-- [ ] T045 [US3] Implement `service/send-due.php` (cron every minute) and `service/config.example.php` (VAPID keys and database path outside the web root; real values never in the repo); the sender also writes a heartbeat time so a stalled cron can be noticed
+- [x] T041 [US3] After approval (D4): create `service/composer.json` with `minishlink/web-push` and PHPUnit (dev); commit `composer.lock`
+- [x] T042 [P] [US3] Failing PHPUnit tests in `service/tests/` for every rule in contracts/reminders-api.md: valid and invalid bodies (400), 2 KB cap (413), 5,000-row cap (429), allowed push domains by exact host match only (host equals the domain or ends with `.domain`; https only; no userinfo or non-default port; look-alikes such as `https://evil.example/?fcm.googleapis.com` and `fcm.googleapis.com.evil.example` are rejected), a test that asserts the stored columns are exactly those in data-model.md and nothing else is kept (SC-009), at most 4 reminders, `endAt` window (-60 s to 48 h), unknown fields rejected, replace semantics, `DELETE` returns 204 always
+- [x] T043 [US3] Implement `service/public/api/reminders.php`, `service/src/` (store, validation, fixed step list), and `service/public/api/.htaccess`. Store only the columns in data-model.md; no IP, no user agent, no request log
+- [x] T044 [P] [US3] Failing PHPUnit tests with a mock push server for `send-due.php`: sends at `end_at` and never early, repeat at `end_at + 300 s` once, silent flag, 404 or 410 deletes the row, rows over 24 h past `end_at` purged, a sync that no longer lists the step deletes the row so the pending repeat is never sent (SC-006), the payload decrypts to exactly `{v, kind, stepId, title, silent}`
+- [x] T045 [US3] Implement `service/send-due.php` (cron every minute) and `service/config.example.php` (VAPID keys and database path outside the web root; real values never in the repo); the sender also writes a heartbeat time so a stalled cron can be noticed
 - [ ] T046 [P] [US3] Failing e2e (Chromium, fake push event via the debugging protocol): visible window gets a `pdp-timer-ended` message and no notification; hidden gets one notification with tag `pdp-<stepId>`; the repeat replaces it; silent when told
 - [ ] T047 [US3] `public/sw.js`: add the `push` handler per contracts/reminders-api.md (always show a notification unless a visible window handles it). Before showing, it checks which wait ends are still live from a small IndexedDB record the page keeps up to date (the service worker cannot read `localStorage`), and shows nothing for an end the app knows was cancelled (spec edge case "Cancel while offline"); the page writes the record in `src/state/actions/notify.ts` on every sync, and a test covers a cancelled end that still gets pushed
-- [ ] T048 [US3] Client sync in `src/state/actions/notify.ts`: on every change, `desiredReminders` then `diffReminders` then `PUT ./api/reminders` (full set); `DELETE` on turn off and "Clear saved data"; subscribe with `VITE_VAPID_PUBLIC_KEY`; switch off the local path while a registration is active; register the long wait when the step before is marked done (FR-019, FR-020, FR-023)
-- [ ] T049 [US3] Service-down handling (FR-026): failed `PUT` leaves timers, alert and local notifications working and shows a one-line message; retry on the next change; test in `tests/e2e/notify-service.spec.ts` with the route blocked
-- [ ] T050 [US3] Update `scripts/check-budget.mjs` so that, only when `VITE_VAPID_PUBLIC_KEY` is set, the key looks valid and the `./api/` URL is relative (with no key the build still passes and the app uses the local path only); confirm the 50 KB budget still passes
+- [x] T048 [US3] Client sync in `src/state/actions/notify.ts`: on every change, `desiredReminders` then `diffReminders` then `PUT ./api/reminders` (full set); `DELETE` on turn off and "Clear saved data"; subscribe with `VITE_VAPID_PUBLIC_KEY`; switch off the local path while a registration is active; register the long wait when the step before is marked done (FR-019, FR-020, FR-023)
+- [x] T049 [US3] Service-down handling (FR-026): failed `PUT` leaves timers, alert and local notifications working and shows a one-line message; retry on the next change; test in `tests/e2e/notify-service.spec.ts` with the route blocked
+- [x] T050 [US3] Update `scripts/check-budget.mjs` so that, only when `VITE_VAPID_PUBLIC_KEY` is set, the key looks valid and the `./api/` URL is relative (with no key the build still passes and the app uses the local path only); confirm the 50 KB budget still passes
 - [x] T051 [US3] Align the spec with decision D2 (FR-027 and SC-005 to "within 2 minutes"): done 2026-11-15
 
 ## Phase 6: User Story 4 - Honest help and privacy note (P4)
 
 **Independent test**: the control and settings explain iPhone Home Screen, blocked, and what is sent where.
 
-- [ ] T052 [P] [US4] Failing e2e `tests/e2e/notify-help.spec.ts`: explanation names what the reminder service and the phone's notification channel receive (FR-025); iPhone-in-Safari guidance; late or missed delivery stated; calendar alarms named as the backup
-- [ ] T053 [US4] Write the copy and the privacy note in `src/ui/slots/notify-control.ts` and the settings screen; copy never promises delivery; the explanation and privacy note also say the web host keeps its ordinary access log (time and address of each request, no step or plan content); re-run T012 after this task
-- [ ] T054 [US4] Update the "no network" statement in the in-app privacy text to say the app sends nothing unless the user opts in
+- [x] T052 [P] [US4] Failing e2e `tests/e2e/notify-help.spec.ts`: explanation names what the reminder service and the phone's notification channel receive (FR-025); iPhone-in-Safari guidance; late or missed delivery stated; calendar alarms named as the backup
+- [x] T053 [US4] Write the copy and the privacy note in `src/ui/slots/notify-control.ts` and the settings screen; copy never promises delivery; the explanation and privacy note also say the web host keeps its ordinary access log (time and address of each request, no step or plan content); re-run T012 after this task
+- [x] T054 [US4] Update the "no network" statement in the in-app privacy text to say the app sends nothing unless the user opts in
 
 ## Phase 7: Polish and cross-cutting
 
-- [ ] T055 [P] Add a "Reminder service" section (include the host's access-log note) to `specs/001-pizza-dough-planner/deploy-dreamhost.md`: uploading `service/`, the config outside the web root, the cron line, and the rollback (turn the service off; the app keeps working)
-- [ ] T056 [P] Update `CLAUDE.md` (commands and layers: `service/`, PHP tests) and remove the temporary Sync Impact Report comment from `.specify/memory/constitution.md` before committing
+- [x] T055 [P] Add a "Reminder service" section (include the host's access-log note) to `specs/001-pizza-dough-planner/deploy-dreamhost.md`: uploading `service/`, the config outside the web root, the cron line, and the rollback (turn the service off; the app keeps working)
+- [x] T056 [P] Update `CLAUDE.md` (commands and layers: `service/`, PHP tests) and remove the temporary Sync Impact Report comment from `.specify/memory/constitution.md` before committing
 - [ ] T057 Run `npm run lint`, `npm test`, `npm run build`, `npm run test:e2e` (set `E2E_PORT`), and the PHPUnit suite
 - [ ] T058 Real-device checks D1 to D6 from quickstart.md (owner's phones; deploy only after the owner asks)
 
@@ -101,3 +101,6 @@ description: "Task list for Timer-End Notifications"
 ## Strategy
 
 MVP is US1 plus US2: they ship value with no server. US3 follows only after the hosting spike passes. 36 tasks in all; T040 to T051 form the gated service block.
+
+
+Notes (2026-11-15): T046 (e2e of the push handler) and T047 (push handler in `public/sw.js`) are written but T046's test is not; both stay open. T048 lives in `notify.ts` as `syncReminders`/`forgetReminders`; its e2e is `tests/e2e/reminders.spec.ts`. T045's heartbeat is `Store::setMeta('last_run')`. `guzzlehttp/guzzle` was added as a dependency of the push library. T057 and T058 are open.

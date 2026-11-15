@@ -12,7 +12,7 @@ Request:
   "reminders": [ { "stepId": "poolish-rest", "endAt": 1795000000, "silent": false } ]
 }
 ```
-Rules: `endpoint` is https on an allowed push domain (Google FCM, Mozilla autopush, Apple `*.push.apple.com`, Windows `*.notify.windows.com`); `stepId` is one of the 14 ids in `service/steps.php`; `endAt` is epoch seconds, from 60 s in the past to 48 h ahead; at most 4 reminders; no other fields (unknown fields give 400).
+Rules: `endpoint` is https on an allowed push domain (Google FCM, Mozilla autopush, Apple `*.push.apple.com`, Windows `*.notify.windows.com`); `stepId` is one of the 14 ids in `service/steps.php`; `endAt` is epoch seconds, from 60 s in the past to 48 h ahead; at most 4 reminders; no other fields (unknown fields give 400; `subscription.expirationTime` is tolerated because browsers include it).
 
 | Status | Meaning |
 |---|---|

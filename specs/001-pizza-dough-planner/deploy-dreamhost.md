@@ -45,3 +45,17 @@ Run the build again, then upload everything in `dist/` over the old files. The s
 - `<app address>/sw.js` loads, and its response header `Cache-Control` is `no-cache`.
 - Run the real-device list at the end of `quickstart.md` on the deployed address.
 - If a WordPress caching or security plugin is active on the main site, confirm it does not apply to the subdomain.
+
+## Reminder service (spec 002, optional)
+
+The app works fully without this. It only adds notifications that reach a locked phone.
+
+What it keeps: per timer, a phone notification address and its keys, the end time and the step id. No plan, name or account. Entries are removed once sent or cancelled and in any case within 24 hours after their end time. The web host also keeps its ordinary access log (time and address of each request, no step or plan content); say so if you describe the service to anyone.
+
+1. **Keys.** Already generated locally: the private key is in `service/config.php` (git-ignored, never commit or share it) and the public key is in `.env.production` as `VITE_VAPID_PUBLIC_KEY`. To rotate, run `php service/bin/generate-vapid.php`, update both, rebuild and upload; every phone must then turn notifications on again.
+2. **Install PHP packages for production** (on your computer, then upload `vendor/`): `cd service && composer install --no-dev -o`. Needs PHP 8.2 or newer with openssl, curl, mbstring and pdo_sqlite (the spike showed the account has them).
+3. **Upload.** On DreamPress the web root is your home folder, so `service/.htaccess` and `service/data/.htaccess` deny web access to everything except the API. Upload `service/` as `pdp-reminders/` next to the site (not inside `pizza/`), and copy `service/public/api/` to `pizza/api/`. In `pizza/api/reminders.php` the service folder defaults to `../../pdp-reminders` (override with the `PDP_SERVICE_DIR` environment variable).
+4. **Cron.** In the DreamHost panel (or `crontab -e`) add, every minute: `* * * * * php $HOME/pdp-reminders/send-due.php`. The script records a heartbeat (`last_run`) each run; if reminders stop, check it first.
+5. **Check.** `curl -i -X PUT https://<site>/pizza/api/reminders` with no body answers 400, not 404 or 500. Then run the real-device list (quickstart D1 to D6).
+
+**Rollback.** Remove the cron line. The app keeps working: failed registrations are shown as one plain line and the in-page alert and local notifications carry on. To turn the feature off in the app, empty `VITE_VAPID_PUBLIC_KEY` and rebuild.

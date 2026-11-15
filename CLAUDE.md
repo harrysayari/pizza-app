@@ -19,6 +19,8 @@ Node 22 or newer. Run `npm install` once.
 | `npm run deploy` | Runs lint, tests and the build, then uploads `dist/` over SFTP using `.env.deploy` (git-ignored; copy `.env.deploy.example`). `-- --dry-run` uploads nothing. Do not run it unless the user asks |
 | `npm run lint` | `tsc --noEmit` plus `scripts/check-style.mjs` (no literal colours under `src/`) |
 | `npm test` | Vitest unit tests in `tests/unit/` (jsdom) |
+| `npm run steps` | Rewrites `service/src/steps.json` from the recipe steps (a unit test fails if it drifts) |
+| `cd service && vendor/bin/phpunit` | PHP tests for the optional reminder service (needs `composer install` in `service/`) |
 | `npm run test:e2e` | Playwright in `tests/e2e/`, Chromium (Pixel 7) and WebKit (iPhone 14) at 390 px, fake clock, axe |
 
 The build uses a relative Vite base (`base: './'`), so `dist/` works at the site root or under a sub-path such as `/pizza/`. Keep every URL in the page, manifest and service worker relative (`check-budget.mjs` fails the build on a root-absolute one), and serve the app with a trailing slash (`/pizza/`).
@@ -35,7 +37,9 @@ Four layers under `src/`. Dependencies point one way: `ui` and `state` use `doma
 - `src/state/`: the single store (`store.ts`), actions (`actions/plan.ts`, `actions/timer.ts`), persistence to `localStorage` (`persistence.ts`), share-link read and write, and start-up restore (`hydrate.ts`).
 - `src/ui/`: `app.ts` renders the current screen from state; `screens/` (plan, schedule, steps, settings), `components/` (chips, stepper, timers, banner and so on, built from the design system) and `slots/` (menu, too-soon note, sentence box, schedule actions).
 
-Outside `src/`: `design/tokens.json` is the source of truth for colour, type, spacing and motion; `design/components.css` holds the component styles; `public/` holds the manifest, icons and `sw.js` (its precache list is filled in by a plugin in `vite.config.ts`); `scripts/` holds the token build, the style check and the budget check.
+Outside `src/`: `service/` is the optional reminder service (PHP 8.2, SQLite, Web Push; spec 002): `public/api/reminders.php` takes the page's set of timer ends, `send-due.php` runs from cron every minute. It is not part of `dist/`, `config.php` (VAPID private key) is git-ignored, and the app must work fully without it. The page talks to it only when `VITE_VAPID_PUBLIC_KEY` is set at build time (`.env.production`).
+
+Also outside `src/`: `design/tokens.json` is the source of truth for colour, type, spacing and motion; `design/components.css` holds the component styles; `public/` holds the manifest, icons and `sw.js` (its precache list is filled in by a plugin in `vite.config.ts`); `scripts/` holds the token build, the style check and the budget check.
 
 Rules that tests enforce: tap targets at least 48 px and 8 px apart, body text 16 px, step text 18 px, timer digits 48 px, AA contrast in both themes, no state shown by colour alone, reduced motion respected, and no network request after the first load (`tests/e2e/privacy.spec.ts`).
 

@@ -3,6 +3,7 @@
 
 import { copy } from '../../platform/calendar-file';
 import { setMuted } from '../../state/actions/timer';
+import { reminderServiceEnabled } from '../../state/actions/notify';
 import { clearSavedData, startNewPlan } from '../../state/hydrate';
 import { writeLink } from '../../state/share-link';
 import { store, type AppState, type Theme } from '../../state/store';
@@ -108,7 +109,16 @@ function resetSection(): HTMLElement {
   box.setAttribute('aria-labelledby', 'settings-saved');
   const h = el('h2', undefined, 'Saved on this device');
   h.id = 'settings-saved';
-  box.append(h);
+  box.append(
+    h,
+    el(
+      'p',
+      undefined,
+      reminderServiceEnabled()
+        ? 'This app sends nothing anywhere unless you turn on timer notifications. If you do, a small reminder service on this site\'s host keeps this phone\'s notification address, the time each timer ends and its step name, and removes them within a day after the timer ends.'
+        : 'This app sends nothing anywhere. Everything stays on this device.',
+    ),
+  );
 
   if (confirming === 'new') {
     box.append(

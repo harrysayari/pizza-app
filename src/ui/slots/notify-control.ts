@@ -2,7 +2,7 @@
 // words and an icon, each with one next step. The browser's permission prompt appears only after the
 // user taps "Turn on notifications" and then "Continue" on the plain explanation (FR-007).
 
-import { controlState, turnOff, turnOn, type ControlState } from '../../state/actions/notify';
+import { controlState, reminderServiceDown, reminderServiceEnabled, turnOff, turnOn, type ControlState } from '../../state/actions/notify';
 import { store, type AppState } from '../../state/store';
 
 let explaining = false;
@@ -71,12 +71,29 @@ function nextStep(c: ControlState): string {
       ? 'On an iPhone, notifications work only for an app on your Home Screen. Tap Share, then Add to Home Screen, then open the app from there.'
       : 'This browser cannot show notifications. The alert on the screen and calendar alarms still work.';
   }
-  if (c.state === 'on') return 'When a timer ends and this app is in the background, your phone can show a notification.';
+  if (c.state === 'on') {
+    return reminderServiceDown()
+      ? 'The reminder service is not answering, so alerts will only arrive while this page is open. Calendar alarms still cover a locked phone.'
+      : 'When a timer ends and this app is in the background, your phone can show a notification.';
+  }
   return 'Get a notification when a timer ends and this app is in the background.';
 }
 
 export const HONESTY_NOTE =
   'Delivery depends on your phone and can be late or missed. Calendar alarms are the backup for a locked phone.';
+
+/** What leaves the phone, said plainly (spec FR-025). Honest about both cases. */
+export function privacyText(): string {
+  if (!reminderServiceEnabled()) {
+    return 'Nothing is sent anywhere: your phone makes the notification itself, so it only works while this app is still running in the background.';
+  }
+  return (
+    'To reach you when the app is closed or your phone is locked, this app registers each timer with a small reminder service on its own web host. ' +
+    "The service keeps a notification address for this phone (it comes from your browser's push service, run by Google, Apple or Mozilla), the time the timer ends and the step name. " +
+    'It keeps no plan, name or account, and removes the entry within a day after the timer ends. Like any website, the host also keeps its ordinary access log of when and from which address a request arrived. ' +
+    'Turning notifications off, or Clear saved data, removes this phone from the service.'
+  );
+}
 
 function explanation(): HTMLElement {
   const box = el('section', 'banner');
@@ -89,9 +106,10 @@ function explanation(): HTMLElement {
     el(
       'p',
       undefined,
-      'Your phone will show "Time is up" with the step name when a timer ends and this app is in the background. Your browser asks for permission next. Nothing is sent to us or to anyone else: your phone makes the notification itself.',
+      'Your phone will show "Time is up" with the step name when a timer ends and this app is in the background. Your browser asks for permission next.',
     ),
-    el('p', undefined, `It only works while this app is still running in the background. ${HONESTY_NOTE} You can turn it off at any time.`),
+    el('p', undefined, privacyText()),
+    el('p', undefined, `${HONESTY_NOTE} You can turn it off at any time.`),
     button('Continue', true, 'notify:continue', () => {
       explaining = false;
       void turnOn(store);

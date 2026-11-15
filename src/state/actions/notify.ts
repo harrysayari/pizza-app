@@ -54,10 +54,18 @@ export function turnOff(store: Store = appStore): void {
 
 const VAPID_KEY = (import.meta.env?.VITE_VAPID_PUBLIC_KEY as string | undefined) ?? '';
 const ENDPOINT = './api/reminders';
+/** Whether this build has a reminder service to talk to (it needs the public key). */
+export const reminderServiceEnabled = (): boolean => VAPID_KEY !== '';
 let lastSent: Reminder[] | null = null;
 /** True while the service holds this device's reminders; the local notification then stays quiet (no doubles). */
 let pushActive = false;
 let inFlight = false;
+let down = false;
+
+/** True after the reminder service failed to answer; the control then says alerts need the page open. */
+export function reminderServiceDown(): boolean {
+  return down;
+}
 let again = false;
 
 async function call(method: 'PUT' | 'DELETE', body: unknown): Promise<boolean> {
@@ -110,6 +118,10 @@ export async function syncReminders(store: Store = appStore, clock: Clock = syst
       const ok = await call('PUT', { subscription: sub.toJSON(), reminders: next });
       lastSent = ok ? next : null;
       pushActive = ok;
+      if (down === ok) {
+        down = !ok;
+        store.update({}); // redraw the control once, when the state changes
+      }
     } while (again);
   } finally {
     inFlight = false;
