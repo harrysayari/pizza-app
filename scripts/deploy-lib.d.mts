@@ -13,3 +13,4 @@ export function listFiles(dir: string): string[];
 export function orderForUpload(files: string[]): string[];
 export function buildBatch(files: string[], localDir: string, remoteDir: string): string;
 export function judgeSite(r: { indexStatus: number; swStatus: number; swCacheControl: string | null }): { ok: boolean; text: string }[];
+export function askpassScript(): string;

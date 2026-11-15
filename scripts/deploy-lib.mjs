@@ -36,7 +36,7 @@ export function readConfig(env) {
   const user = need('SFTP_USER');
   const remoteDir = need('SFTP_REMOTE_DIR').replace(/\/+$/, '');
   if (remoteDir === '' || remoteDir === '.' || remoteDir === '~' || remoteDir.split('/').includes('..')) {
-    throw new Error('SFTP_REMOTE_DIR must be the site folder, for example pizza.ccc.com.au (not the home folder, "/" or a path with "..")');
+    throw new Error('SFTP_REMOTE_DIR must be the site folder, for example pizza (not the home folder, "/" or a path with "..")');
   }
   const portText = (env.SFTP_PORT ?? '22').trim();
   if (!/^\d+$/.test(portText) || Number(portText) < 1 || Number(portText) > 65535) throw new Error('SFTP_PORT must be a number from 1 to 65535');
@@ -108,4 +108,18 @@ export function judgeSite({ indexStatus, swStatus, swCacheControl }) {
     { ok: swStatus === 200, text: `sw.js answers ${swStatus}` },
     { ok: /no-cache|no-store|max-age=0/i.test(swCacheControl ?? ''), text: `sw.js Cache-Control is "${swCacheControl ?? 'missing'}" (must make browsers recheck it)` },
   ];
+}
+
+/**
+ * A helper for ssh's SSH_ASKPASS hook. It answers a password prompt from the PDP_SFTP_PASSWORD
+ * environment variable and refuses every other question (for example a host-key question), so the
+ * password is never written to a file or put on a command line.
+ */
+export function askpassScript() {
+  return `#!/bin/sh
+case "$1" in
+  *assword*) printf '%s\\n' "$PDP_SFTP_PASSWORD" ;;
+  *) exit 1 ;;
+esac
+`;
 }

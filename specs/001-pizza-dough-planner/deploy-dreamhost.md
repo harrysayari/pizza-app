@@ -11,8 +11,8 @@ The app is plain files in `dist/`. No WordPress, database or server code is invo
 
 `npm run deploy` runs lint, the unit tests and the build, uploads `dist/` (hidden `.htaccess` included) over SFTP, then checks the live site.
 
-1. Copy `.env.deploy.example` to `.env.deploy` and fill in the SFTP host, user and the site folder (for example `pizza.ccc.com.au`). `.env.deploy` is git-ignored, and the script refuses to run if it has been committed.
-2. Log in with an SSH key (`SFTP_KEY_FILE`), or leave the password out and type it when asked. A stored `SFTP_PASSWORD` also works if the `sshpass` tool is installed. The password is never put on a command line or printed.
+1. Copy `.env.deploy.example` to `.env.deploy` and fill in the SFTP host, user and the site folder (for example `pizza`). `.env.deploy` is git-ignored, and the script refuses to run if it has been committed.
+2. Log in with an SSH key (`SFTP_KEY_FILE`), or leave the password out and type it when asked. A stored `SFTP_PASSWORD` is read from `.env.deploy` and handed to ssh through its `SSH_ASKPASS` hook, so nothing needs installing. The password is never put on a command line, written to a file or printed.
 3. `npm run deploy -- --dry-run` lists what would be uploaded and uploads nothing. `npm run deploy` asks "Upload now?" before it sends anything (`--yes` skips the question, `--skip-checks` skips lint and tests, `--no-build` uploads the existing `dist/`).
 4. The page and service worker are uploaded last, so visitors never see a page that points at files not there yet. Old hashed files in `assets/` are left in place; they are harmless and can be deleted by hand.
 5. With `SITE_URL` set, the script then checks that the home page and `sw.js` answer and that `sw.js` is sent with `Cache-Control: no-cache`.
@@ -24,6 +24,10 @@ The app is plain files in `dist/`. No WordPress, database or server code is invo
 2. Connect with an SFTP app (Cyberduck or FileZilla). Never put the password in the repo or in a chat.
 3. Copy everything inside `dist/` into the subdomain's folder, so `index.html` sits directly in it, not in a `dist` subfolder.
 4. Open `https://<subdomain>/` once the free certificate is active.
+
+## Where it lives
+
+The app is published at **https://designandinspire.com.au/pizza/** (open it with the trailing slash). The deploy settings use `SITE_URL=https://designandinspire.com.au/pizza`, and `SFTP_REMOTE_DIR` is the folder that serves `/pizza/` (on a DreamPress account SFTP lands in the WordPress folder, so it is `pizza`).
 
 ## Where it can live
 

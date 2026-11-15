@@ -4,9 +4,9 @@ import { readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { buildBatch, judgeSite, listFiles, orderForUpload, parseEnv, readConfig } from '../../scripts/deploy-lib.mjs';
+import { askpassScript, buildBatch, judgeSite, listFiles, orderForUpload, parseEnv, readConfig } from '../../scripts/deploy-lib.mjs';
 
-const good = { SFTP_HOST: 'sftp.example.com', SFTP_USER: 'pizza', SFTP_REMOTE_DIR: 'pizza.ccc.com.au' };
+const good = { SFTP_HOST: 'sftp.example.com', SFTP_USER: 'pizza', SFTP_REMOTE_DIR: 'pizza' };
 
 describe('parseEnv', () => {
   it('reads keys, ignores comments and blank lines, and strips quotes', () => {
@@ -16,7 +16,7 @@ describe('parseEnv', () => {
 
 describe('readConfig', () => {
   it('accepts the three required settings and defaults the port', () => {
-    expect(readConfig(good)).toMatchObject({ host: 'sftp.example.com', user: 'pizza', port: 22, remoteDir: 'pizza.ccc.com.au', keyFile: null, password: null, siteUrl: null });
+    expect(readConfig(good)).toMatchObject({ host: 'sftp.example.com', user: 'pizza', port: 22, remoteDir: 'pizza', keyFile: null, password: null, siteUrl: null });
   });
   it.each(['SFTP_HOST', 'SFTP_USER', 'SFTP_REMOTE_DIR'])('says which setting is missing: %s', (key) => {
     expect(() => readConfig({ ...good, [key]: '' })).toThrow(key);
@@ -30,7 +30,7 @@ describe('readConfig', () => {
   it('checks the port and the site address', () => {
     expect(() => readConfig({ ...good, SFTP_PORT: 'abc' })).toThrow(/SFTP_PORT/);
     expect(() => readConfig({ ...good, SITE_URL: 'http://x' })).toThrow(/https/);
-    expect(readConfig({ ...good, SITE_URL: 'https://pizza.ccc.com.au/' }).siteUrl).toBe('https://pizza.ccc.com.au');
+    expect(readConfig({ ...good, SITE_URL: 'https://designandinspire.com.au/pizza/' }).siteUrl).toBe('https://designandinspire.com.au/pizza');
   });
 });
 
@@ -48,12 +48,12 @@ describe('files and batch', () => {
     expect(order).toContain('.htaccess');
   });
   it('makes folders first (ignoring "exists" errors) and then puts each file', () => {
-    const lines = buildBatch(listFiles(root), root, 'pizza.ccc.com.au').trim().split('\n');
-    expect(lines[0]).toBe('-mkdir "pizza.ccc.com.au"');
-    expect(lines[1]).toBe('-mkdir "pizza.ccc.com.au/assets"');
+    const lines = buildBatch(listFiles(root), root, 'pizza').trim().split('\n');
+    expect(lines[0]).toBe('-mkdir "pizza"');
+    expect(lines[1]).toBe('-mkdir "pizza/assets"');
     expect(lines.filter((l) => l.startsWith('put '))).toHaveLength(6);
-    expect(lines.at(-1)).toBe(`put "${join(root, 'index.html')}" "pizza.ccc.com.au/index.html"`);
-    expect(lines.some((l) => l.includes('"pizza.ccc.com.au/.htaccess"'))).toBe(true);
+    expect(lines.at(-1)).toBe(`put "${join(root, 'index.html')}" "pizza/index.html"`);
+    expect(lines.some((l) => l.includes('"pizza/.htaccess"'))).toBe(true);
   });
 });
 
@@ -71,5 +71,15 @@ describe('secrets stay out of git', () => {
     expect(ignore).toContain('.env.deploy');
     expect(ignore).toContain('.env.deploy.*');
     expect(ignore).toContain('!.env.deploy.example');
+  });
+});
+
+describe('askpassScript', () => {
+  it('answers a password prompt from the environment and refuses any other question', () => {
+    const script = askpassScript();
+    expect(script).toContain('$PDP_SFTP_PASSWORD');
+    expect(script).toContain('*assword*');
+    expect(script).toContain('exit 1');
+    expect(script).not.toMatch(/mN7|password=/i);
   });
 });

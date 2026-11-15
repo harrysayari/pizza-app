@@ -4,7 +4,7 @@
 // Nothing secret is ever put on a command line, in a file in the repo or in the output:
 //   - Best: an SSH key (SFTP_KEY_FILE, or one already loaded in ssh-agent).
 //   - Or a password typed when the connection opens (nothing stored).
-//   - Or SFTP_PASSWORD in `.env.deploy`, which needs the `sshpass` tool installed.
+//   - Or SFTP_PASSWORD in `.env.deploy`, handed to ssh through SSH_ASKPASS (never on a command line).
 // It uses the `ssh` and `sftp` programs already on macOS and Linux, so there is nothing to install.
 //
 // Flags: --dry-run  list what would be uploaded, upload nothing
@@ -17,12 +17,21 @@ import { existsSync, mkdtempSync, readFileSync, rmSync, statSync, writeFileSync 
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createInterface } from 'node:readline/promises';
-import { buildBatch, judgeSite, listFiles, parseEnv, readConfig } from './deploy-lib.mjs';
+import { askpassScript, buildBatch, judgeSite, listFiles, parseEnv, readConfig } from './deploy-lib.mjs';
 
 const ROOT = new URL('..', import.meta.url).pathname;
 const DIST = join(ROOT, 'dist');
 const args = process.argv.slice(2);
 const flag = (name) => args.includes(name);
+// An unknown flag (a typo such as "--dry-run.") must stop the script, not be ignored.
+const KNOWN = new Set(['--dry-run', '--yes', '--skip-checks', '--no-build', '--env']);
+for (let i = 0; i < args.length; i++) {
+  if (args[i - 1] === '--env') continue;
+  if (!KNOWN.has(args[i])) {
+    console.error(`deploy: unknown option "${args[i]}". Nothing was done.\n  Options: ${[...KNOWN].join(' ')}`);
+    process.exit(1);
+  }
+}
 const envFile = args.includes('--env') ? args[args.indexOf('--env') + 1] : join(ROOT, '.env.deploy');
 
 function fail(message) {
@@ -73,6 +82,9 @@ if (flag('--dry-run')) {
   process.exit(0);
 }
 
+if (!flag('--yes') && !process.stdin.isTTY) {
+  fail('there is no terminal to ask "Upload now?" in (this happens when it is run from inside another tool). Run it in your own terminal, or add --yes to confirm in advance. Nothing was uploaded.');
+}
 if (!flag('--yes')) {
   const rl = createInterface({ input: process.stdin, output: process.stdout });
   const answer = (await rl.question('Upload now? Existing files with the same names are replaced. (yes/no) ')).trim().toLowerCase();
@@ -85,6 +97,7 @@ if (!flag('--yes')) {
 // sftp reuses it in batch mode, which stops at the first real error.
 
 const work = mkdtempSync(join(tmpdir(), 'pdp-'));
+process.on('exit', () => rmSync(work, { recursive: true, force: true }));
 const socket = join(work, 'cm');
 const common = ['-p', String(config.port), ...(config.keyFile ? ['-i', config.keyFile] : [])];
 const target = `${config.user}@${config.host}`;
@@ -92,14 +105,19 @@ const reuse = ['-o', `ControlPath=${socket}`];
 let exitCode = 0;
 
 try {
-  let master;
-  const masterArgs = [...common, '-o', 'ControlMaster=yes', ...reuse, '-o', 'ControlPersist=300', '-N', '-f', target];
+  // A stored password is handed to ssh through SSH_ASKPASS: a small helper answers the password prompt
+  // from an environment variable. Nothing to install, and the password is not written to disk.
+  let env = process.env;
   if (config.password !== null) {
-    if (spawnSync('sshpass', ['-V'], { stdio: 'ignore' }).error) fail('SFTP_PASSWORD needs the sshpass tool, which is not installed. Use an SSH key (SFTP_KEY_FILE), or remove SFTP_PASSWORD and type the password when asked.');
-    master = run('sshpass', ['-e', 'ssh', ...masterArgs], { env: { ...process.env, SSHPASS: config.password } });
-  } else {
-    master = run('ssh', masterArgs);
+    const helper = join(work, 'askpass.sh');
+    writeFileSync(helper, askpassScript(), { mode: 0o700 });
+    env = { ...process.env, SSH_ASKPASS: helper, SSH_ASKPASS_REQUIRE: 'force', DISPLAY: process.env.DISPLAY ?? 'none', PDP_SFTP_PASSWORD: config.password };
+  } else if (config.keyFile === null && !process.stdin.isTTY) {
+    fail('no SFTP_PASSWORD or SFTP_KEY_FILE is set and there is no terminal to type a password in. (A key loaded in ssh-agent needs SFTP_KEY_FILE too, or a terminal.)');
   }
+  // accept-new trusts a server the first time it is seen and refuses it if its key later changes.
+  const masterArgs = [...common, '-o', 'StrictHostKeyChecking=accept-new', '-o', 'ControlMaster=yes', ...reuse, '-o', 'ControlPersist=300', '-N', '-f', target];
+  const master = run('ssh', masterArgs, { env });
   if (master.status !== 0) fail('could not connect. Check the host, user, port and key or password.');
 
   const batchFile = join(work, 'batch.txt');
