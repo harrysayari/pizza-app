@@ -1,0 +1,190 @@
+/* Pizza Dough Planner — generated from tokens.json. Edit tokens.json, not this file. */
+
+:root,
+[data-theme="light"] {
+  --surface-ground: #FAF7F1;
+  --surface-raised: #FFFFFF;
+  --surface-sunken: #F0E9DC;
+  --ink: #26211D;
+  --ink-muted: #625A52;
+  --border: #DDD3C2;
+  --border-strong: #8A7F70;
+  --tomato: #C23B22;
+  --tomato-pressed: #8E2A17;
+  --tomato-soft: #FBE3DC;
+  --on-tomato: #FFFFFF;
+  --basil: #2E6B3B;
+  --basil-soft: #E1EFDD;
+  --on-basil: #FFFFFF;
+  --semolina-soft: #FBEBC0;
+  --semolina-text: #7A4E00;
+  --dough: #F3E3C3;
+  --focus-ring: #1F55B5;
+  --shadow-raised: 0 1px 2px #26211D1F, 0 6px 16px #26211D14;
+  --shadow-key-tomato: 0 4px 0 0 #8E2A17;
+  --shadow-key-neutral: 0 3px 0 0 #DDD3C2;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --surface-ground: #1B1714;
+    --surface-raised: #26211D;
+    --surface-sunken: #141110;
+    --ink: #F6EEE3;
+    --ink-muted: #BDB1A1;
+    --border: #3A332D;
+    --border-strong: #8F8473;
+    --tomato: #F0674B;
+    --tomato-pressed: #E25C42;
+    --tomato-soft: #4A2119;
+    --on-tomato: #1B1714;
+    --basil: #7FCB8E;
+    --basil-soft: #1F3A25;
+    --on-basil: #12190F;
+    --semolina-soft: #4A3A12;
+    --semolina-text: #F2C76B;
+    --dough: #D9BE8E;
+    --focus-ring: #8DB6FF;
+    --shadow-raised: 0 1px 2px #00000080, 0 6px 16px #00000059;
+    --shadow-key-tomato: 0 4px 0 0 #A33F2B;
+    --shadow-key-neutral: 0 3px 0 0 #3A332D;
+    color-scheme: dark;
+  }
+}
+
+[data-theme="dark"] {
+  --surface-ground: #1B1714;
+  --surface-raised: #26211D;
+  --surface-sunken: #141110;
+  --ink: #F6EEE3;
+  --ink-muted: #BDB1A1;
+  --border: #3A332D;
+  --border-strong: #8F8473;
+  --tomato: #F0674B;
+  --tomato-pressed: #E25C42;
+  --tomato-soft: #4A2119;
+  --on-tomato: #1B1714;
+  --basil: #7FCB8E;
+  --basil-soft: #1F3A25;
+  --on-basil: #12190F;
+  --semolina-soft: #4A3A12;
+  --semolina-text: #F2C76B;
+  --dough: #D9BE8E;
+  --focus-ring: #8DB6FF;
+  --shadow-raised: 0 1px 2px #00000080, 0 6px 16px #00000059;
+  --shadow-key-tomato: 0 4px 0 0 #A33F2B;
+  --shadow-key-neutral: 0 3px 0 0 #3A332D;
+  color-scheme: dark;
+}
+
+:root {
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --tap-min: 48px;
+  --tap-comfort: 56px;
+  --tap-gap: 8px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-pill: 999px;
+  --z-base: 0;
+  --z-sticky: 10;
+  --z-banner: 20;
+  --z-sheet: 30;
+  --z-toast: 40;
+  --font-display: "Fraunces", "Iowan Old Style", Georgia, serif;
+  --font-sans: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --motion-instant: 80ms;
+  --motion-fast: 140ms;
+  --motion-base: 220ms;
+  --motion-slow: 420ms;
+  --ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --ease-spring: cubic-bezier(0.34, 1.4, 0.5, 1);
+}
+
+.display {
+  font-family: var(--font-display);
+  font-size: 40px;
+  line-height: 44px;
+  font-weight: 600;
+}
+
+.h1 {
+  font-family: var(--font-display);
+  font-size: 32px;
+  line-height: 38px;
+  font-weight: 600;
+}
+
+.h2 {
+  font-family: var(--font-display);
+  font-size: 26px;
+  line-height: 32px;
+  font-weight: 600;
+}
+
+.h3 {
+  font-family: var(--font-display);
+  font-size: 20px;
+  line-height: 26px;
+  font-weight: 600;
+}
+
+.body {
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 400;
+}
+
+.body-lg {
+  font-family: var(--font-sans);
+  font-size: 18px;
+  line-height: 28px;
+  font-weight: 400;
+}
+
+.label {
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 20px;
+  font-weight: 700;
+}
+
+.caption {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 400;
+}
+
+.clock {
+  font-family: var(--font-sans);
+  font-size: 20px;
+  line-height: 24px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.amount {
+  font-family: var(--font-sans);
+  font-size: 20px;
+  line-height: 24px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.timer {
+  font-family: var(--font-sans);
+  font-size: 56px;
+  line-height: 60px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
