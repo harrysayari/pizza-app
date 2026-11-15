@@ -250,6 +250,20 @@ test('FR-022: the alert note is shown and no copy promises alerts on a locked or
   }
 });
 
+// Added by lane J (T071): FR-015 had no test of the step card's content.
+test('FR-015: a step shows its position, title, instruction and its own amounts', async ({ page }) => {
+  await openSteps(page);
+  await expect(page.getByText('Step 1 of 14')).toBeVisible();
+  await expect(page.getByRole('heading', { level: 2, name: 'Mix the poolish' })).toBeVisible();
+  await expect(page.locator('.step-text')).not.toBeEmpty();
+  const amounts = page.getByRole('list', { name: 'Amounts for this step' });
+  await expect(amounts).toContainText('202 g water');
+  await expect(amounts).toContainText('5.0 g yeast');
+  await nextSteps(page, 1);
+  await expect(page.getByText('Step 2 of 14')).toBeVisible();
+  await expect(page.getByRole('heading', { level: 2 })).not.toHaveText('Mix the poolish');
+});
+
 test('step screen meets tap, text and contrast rules in both themes', async ({ page }) => {
   await openSteps(page);
   await nextSteps(page, 1);
