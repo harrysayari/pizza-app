@@ -1,0 +1,42 @@
+<!-- @dsCard group="Inputs" height=760 subtitle="Size, day and time pickers" -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500..700&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<div class="stage">
+  <fieldset class="chipset">
+    <legend>Pizza size</legend>
+    <div class="chips">
+      <label class="chip chip-lg"><input type="radio" name="size" value="12"><span class="chip-face"><span class="chip-line"><span class="chip-check"></span><span class="chip-main">12"</span></span><span class="chip-sub">280 g ball</span></span></label>
+      <label class="chip chip-lg"><input type="radio" name="size" value="14" checked><span class="chip-face"><span class="chip-line"><span class="chip-check"></span><span class="chip-main">14"</span></span><span class="chip-sub">310 g ball</span></span></label>
+      <label class="chip chip-lg"><input type="radio" name="size" value="16"><span class="chip-face"><span class="chip-line"><span class="chip-check"></span><span class="chip-main">16"</span></span><span class="chip-sub">350 g ball</span></span></label>
+    </div>
+  </fieldset>
+
+  <fieldset class="chipset">
+    <legend>Bake day</legend>
+    <div class="chips">
+      <label class="chip"><input type="radio" name="day" value="tomorrow"><span class="chip-face"><span class="chip-line"><span class="chip-check"></span>Tomorrow</span></span></label>
+      <label class="chip"><input type="radio" name="day" value="sat" checked><span class="chip-face"><span class="chip-line"><span class="chip-check"></span>Sat</span></span></label>
+      <label class="chip"><input type="radio" name="day" value="sun"><span class="chip-face"><span class="chip-line"><span class="chip-check"></span>Sun</span></span></label>
+      <label class="chip"><input type="radio" name="day" value="mon"><span class="chip-face"><span class="chip-line"><span class="chip-check"></span>Mon</span></span></label>
+    </div>
+  </fieldset>
+
+  <fieldset class="chipset">
+    <legend>Ready to bake at</legend>
+    <div class="chips">
+      <label class="chip"><input type="radio" name="time" value="lunch"><span class="chip-face"><span class="chip-line"><span class="chip-check"></span>Lunch</span><span class="chip-sub">12:30</span></span></label>
+      <label class="chip"><input type="radio" name="time" value="early"><span class="chip-face"><span class="chip-line"><span class="chip-check"></span>Early dinner</span><span class="chip-sub">6:00</span></span></label>
+      <label class="chip"><input type="radio" name="time" value="dinner" checked><span class="chip-face"><span class="chip-line"><span class="chip-check"></span>Dinner</span><span class="chip-sub">7:30</span></span></label>
+    </div>
+  </fieldset>
+
+  <div class="stack">
+    <span class="state-label">States: default, pressed, selected, disabled, keyboard focus</span>
+    <div class="chips">
+      <span class="chip"><span class="chip-face"><span class="chip-line">Sat</span></span></span>
+      <span class="chip"><span class="chip-face is-pressed"><span class="chip-line">Sat</span></span></span>
+      <span class="chip"><span class="chip-face is-selected"><span class="chip-line"><span class="chip-check"></span>Sat</span></span></span>
+      <span class="chip"><span class="chip-face is-disabled"><span class="chip-line">Sat</span></span></span>
+      <span class="chip"><span class="chip-face is-focus"><span class="chip-line">Sat</span></span></span>
+    </div>
+  </div>
+</div>

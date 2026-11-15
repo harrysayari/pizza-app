@@ -1,0 +1,35 @@
+<!-- @dsCard group="Step mode" height=1180 subtitle="Idle, running, paused and finished" -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500..700&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<div class="stage">
+  <div class="timer" style="--p:0" role="timer" aria-label="Rest, 15 minutes">
+    <div class="timer-ring" aria-hidden="true"><span class="timer-ball"><span class="dough-ball"></span></span></div>
+    <div class="timer-digits">15:00</div>
+    <div class="timer-state">Ready to start</div>
+    <div class="timer-sub">Rest uncovered, 15 min</div>
+    <div class="timer-actions"><button class="btn btn-primary" type="button">Start 15 min</button></div>
+  </div>
+
+  <div class="timer" style="--p:45" role="timer" aria-label="Rest, 8 minutes 12 seconds left">
+    <div class="timer-ring" aria-hidden="true"><span class="timer-ball"><span class="dough-ball"></span></span></div>
+    <div class="timer-digits">08:12</div>
+    <div class="timer-state">Resting</div>
+    <div class="timer-sub">The dough rises as the ring fills</div>
+    <div class="timer-actions"><button class="btn btn-secondary" type="button">Pause</button><button class="btn btn-secondary" type="button">+1 min</button></div>
+  </div>
+
+  <div class="timer is-paused" style="--p:45" role="timer" aria-label="Paused, 8 minutes 12 seconds left">
+    <div class="timer-ring" aria-hidden="true"><span class="timer-ball"><span class="dough-ball"></span></span></div>
+    <div class="timer-digits">08:12</div>
+    <div class="timer-state"><span class="pause-bars" aria-hidden="true"></span> Paused</div>
+    <div class="timer-sub">Ring turns grey while paused</div>
+    <div class="timer-actions"><button class="btn btn-primary" type="button">Resume</button></div>
+  </div>
+
+  <div class="timer is-done" style="--p:100" role="timer" aria-label="Finished">
+    <div class="timer-ring" aria-hidden="true"><span class="timer-ball"><span class="dough-ball"></span></span></div>
+    <div class="timer-digits">00:00</div>
+    <div class="timer-state"><span class="tick" aria-hidden="true"></span> Time is up</div>
+    <div class="timer-sub">Move on when you are ready</div>
+    <div class="timer-actions"><button class="btn btn-primary" type="button">Done, next step</button></div>
+  </div>
+</div>

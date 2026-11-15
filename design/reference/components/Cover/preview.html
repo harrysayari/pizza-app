@@ -1,0 +1,34 @@
+<!-- @dsCard height=300 -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500..700&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>
+  body { margin: 0; }
+  .cover { display: block; width: 960px; height: 300px; }
+  .ground { fill: var(--surface-ground); }
+  .tomato { fill: var(--tomato); }
+  .basil { fill: var(--basil); }
+  .ink { fill: var(--ink); }
+  .dough { fill: var(--dough); }
+  .tile { rx: var(--radius-lg); ry: var(--radius-lg); }
+  .name { fill: var(--ink); font-family: var(--font-display); font-size: 72px; font-weight: 600; }
+  .tag { fill: var(--ink-muted); font-family: var(--font-sans); font-size: 14px; }
+</style>
+<svg class="cover" viewBox="0 0 960 300" role="img" aria-label="Pizza Dough Planner">
+  <!--
+    blocks: tomato 248x252 at (496,24), basil 184x120 at (760,24), ink 88x116 at (760,160), dough 88x116 at (856,160); tomato leads because it is the action colour.
+    arrangement: one tall slab with three satellites stacked on the right, flush on a 8px gap.
+    pattern: four discs cut from the slab in dough, growing left to right; "soft, friendly, large radii" row, chosen because the dough ball rising is this system's motif.
+    steps and radii: disc radii 10/16/26/40 and tile corners from radius-lg (20); gaps are tap-gap (8) and space-4 (16).
+  -->
+  <rect class="ground" width="960" height="300"/>
+  <rect class="tile tomato" x="496" y="24" width="248" height="252"/>
+  <rect class="tile basil" x="760" y="24" width="184" height="120"/>
+  <rect class="tile ink" x="760" y="160" width="88" height="116"/>
+  <rect class="tile dough" x="856" y="160" width="88" height="116"/>
+  <circle class="dough" cx="526" cy="244" r="10"/>
+  <circle class="dough" cx="562" cy="238" r="16"/>
+  <circle class="dough" cx="616" cy="228" r="26"/>
+  <circle class="dough" cx="684" cy="212" r="40"/>
+  <text class="name" x="40" y="128">Pizza Dough</text>
+  <text class="name" x="40" y="196">Planner</text>
+  <text class="tag" x="40" y="236">Plan the dough. Bake on time.</text>
+</svg>

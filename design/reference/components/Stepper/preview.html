@@ -1,0 +1,36 @@
+<!-- @dsCard group="Inputs" height=420 subtitle="Number of pizzas" -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500..700&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<div class="stage">
+  <div class="stack">
+    <span class="state-label" id="lbl">How many pizzas? (tap to try)</span>
+    <div class="stepper" role="group" aria-labelledby="lbl">
+      <button class="stepper-btn" type="button" id="dec" aria-label="One fewer pizza">&minus;</button>
+      <span class="stepper-value" id="val" aria-live="polite">4</span>
+      <button class="stepper-btn" type="button" id="inc" aria-label="One more pizza">+</button>
+      <span class="stepper-unit">pizzas</span>
+    </div>
+  </div>
+  <div class="stack">
+    <span class="state-label">At the minimum (1): minus is disabled</span>
+    <div class="stepper">
+      <button class="stepper-btn" type="button" disabled aria-label="One fewer pizza">&minus;</button>
+      <span class="stepper-value">1</span>
+      <button class="stepper-btn" type="button" aria-label="One more pizza">+</button>
+      <span class="stepper-unit">pizza</span>
+    </div>
+  </div>
+  <div class="stack">
+    <span class="state-label">Pressed and keyboard focus</span>
+    <div class="row">
+      <button class="stepper-btn is-pressed" type="button" aria-label="One more pizza">+</button>
+      <button class="stepper-btn is-focus" type="button" aria-label="One more pizza">+</button>
+    </div>
+  </div>
+</div>
+<script>
+  var v = 4, val = document.getElementById('val'), dec = document.getElementById('dec'), inc = document.getElementById('inc');
+  function paint() { val.textContent = v; dec.disabled = v <= 1; inc.disabled = v >= 12; }
+  dec.onclick = function () { v = Math.max(1, v - 1); paint(); };
+  inc.onclick = function () { v = Math.min(12, v + 1); paint(); };
+  paint();
+</script>
