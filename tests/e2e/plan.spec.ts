@@ -154,6 +154,33 @@ test('the stepper stops at 12', async ({ page }) => {
   await expect(page.getByRole('button', { name: 'One more pizza' })).toBeDisabled();
 });
 
+// Added for the analysis findings C1 and C2.
+test('C1: a batch over 3,000 g shows a plain note, a normal batch does not', async ({ page }) => {
+  await start(page);
+  await choose(page, '16"', 'Sat', 'Dinner');
+  for (let i = 0; i < 8; i++) await page.getByRole('button', { name: 'One more pizza' }).click();
+  await makePlan(page).click();
+  await expect(page.locator('[data-screen="schedule"]')).toBeVisible();
+  const note = page.locator('[data-slot="large-batch"]');
+  await expect(note).toBeVisible();
+  await expect(note).toContainText('home mixer or bowl may not hold it');
+  await expectNoAxeViolations(page);
+});
+
+test('C1: no large-batch note for 4 pizzas at 14"', async ({ page }) => {
+  await planSaturdayDinner(page);
+  await expect(page.locator('[data-slot="large-batch"]')).toHaveCount(0);
+});
+
+test('C2: size chip captions that carry ball weights are at least 16px', async ({ page }) => {
+  await start(page);
+  const sizes = await page.locator('fieldset', { hasText: 'Pizza size' }).locator('.chip-sub').evaluateAll(
+    (els) => els.map((e) => parseFloat(getComputedStyle(e).fontSize)),
+  );
+  expect(sizes).toHaveLength(3);
+  for (const px of sizes) expect(px).toBeGreaterThanOrEqual(16);
+});
+
 for (const width of [360, 430]) {
   test(`tap targets, text sizes and no overflow at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });

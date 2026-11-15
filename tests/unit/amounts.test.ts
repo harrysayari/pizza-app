@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ballGrams, formatGrams, scaleIngredients } from '../../src/domain/amounts';
+import { LARGE_BATCH_GRAMS, ballGrams, formatGrams, isLargeBatch, scaleIngredients } from '../../src/domain/amounts';
 import { INGREDIENTS } from '../../src/domain/recipe';
 
 const sum = (xs: { grams: number }[]) => xs.reduce((a, x) => a + x.grams, 0);
@@ -60,5 +60,21 @@ describe('formatGrams ("whole grams, except under 10 g shown to one decimal")', 
   it('shows whole grams from 10 g', () => {
     expect(formatGrams(201.6)).toBe('202 g');
     expect(formatGrams(10)).toBe('10 g');
+  });
+});
+
+describe('isLargeBatch (spec edge case: largest batch)', () => {
+  it('uses a 3,000 g threshold and flags only totals above it', () => {
+    expect(LARGE_BATCH_GRAMS).toBe(3000);
+    expect(isLargeBatch(3000)).toBe(false);
+    expect(isLargeBatch(3001)).toBe(true);
+  });
+
+  it('flags the biggest batches and not a normal one', () => {
+    expect(isLargeBatch(12 * ballGrams(16))).toBe(true); // 4,200 g
+    expect(isLargeBatch(12 * ballGrams(12))).toBe(true); // 3,360 g
+    expect(isLargeBatch(4 * ballGrams(14))).toBe(false); // 1,240 g
+    expect(isLargeBatch(9 * ballGrams(14))).toBe(false); // 2,790 g
+    expect(isLargeBatch(10 * ballGrams(14))).toBe(true); // 3,100 g
   });
 });

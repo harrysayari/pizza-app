@@ -32,7 +32,7 @@ A home cook chooses a pizza size, how many pizzas they want, the day they want t
 1. **Given** the user has chosen 14", 4 pizzas, a bake day and Dinner, **When** they tap "Make my plan", **Then** they see the ball weight (about 310 g), the total dough (1,240 g), the ingredients grouped as Poolish and Final dough, and a schedule of steps with a clock time and weekday on each.
 2. **Given** a plan is shown, **When** the user changes the size or the number of pizzas, **Then** the amounts and times update to match without starting over.
 3. **Given** the user picks a different bake time chip, **When** the plan updates, **Then** every step time shifts so the last step still ends at the chosen bake time.
-4. **Given** a plan is shown, **When** the user ticks an ingredient, **Then** it shows as ticked and stays ticked until they untick it or change the plan.
+4. **Given** a plan is shown, **When** the user ticks an ingredient, **Then** it shows as ticked and stays ticked until they untick it or change the pizza size or the number of pizzas. Changing the day or time keeps the ticks.
 
 ---
 
@@ -134,7 +134,7 @@ The cook can close the page and return later to the same plan and timers, share 
 - **Start time already passed:** If the first step's time is already in the past, treat it as too soon and show the earliest ready time.
 - **Fridge window:** The fridge rest is never planned for more than 24 hours.
 - **Time zones and clock changes:** Times are shown in the user's local time, and a daylight-saving change or timezone change does not shift steps by the wrong amount.
-- **Largest batch:** At the limit of 12 pizzas the amounts are shown correctly with a plain note if the batch is larger than a home mixer or bowl is likely to hold.
+- **Largest batch:** At the limit of 12 pizzas the amounts are shown correctly with a plain note if the batch is larger than a home mixer or bowl is likely to hold. The note shows when total dough is over 3,000 g (for example 10 pizzas at 14", or 12 at 12" or 16"), on the schedule screen, and never changes an amount.
 - **Sound blocked or muted by the device:** The finished state and vibration still appear.
 - **Page reloaded or tab closed during a timer:** The time left is correct on return, based on the planned end time.
 - **Saved data removed by the device:** Some browsers delete a page's saved data after about a week without a visit, and private windows do not keep it. The product shows the start screen without an error, and a shared link restores the choices.
@@ -151,7 +151,7 @@ The cook can close the page and return later to the same plan and timers, share 
 - **FR-002**: Users MUST be able to set the number of pizzas from 1 to 12 using plus and minus buttons, without typing.
 - **FR-003**: Users MUST be able to choose a bake day from "Tomorrow" and the following weekday names, and a ready-to-bake time of Lunch (12:30 pm), Early dinner (6:00 pm) or Dinner (7:30 pm), all by tapping.
 - **FR-004**: The product MUST NOT ask users to use a date picker.
-- **FR-005**: Users MAY say or type one sentence that sets the same choices; the understood choices MUST be shown visibly and be editable, and MUST NOT replace the tap choices.
+- **FR-005**: Users MAY say or type one sentence that sets the same choices; the understood choices MUST be shown visibly and be editable, and MUST NOT replace the tap choices. Where the browser sends speech to its vendor to recognise it, the mic button MUST say so in one line, and typing MUST always work.
 
 **Dough size and amounts**
 
@@ -220,14 +220,14 @@ The cook can close the page and return later to the same plan and timers, share 
 ### Measurable Outcomes
 
 - **SC-001** (with 14" and 4 pizzas preselected and no day or time preselected): A first-time user can go from opening the page to seeing a full plan in under 30 seconds and no more than 6 taps.
-- **SC-002**: At least 90% of first-time users complete a plan on their first attempt without help.
+- **SC-002** (post-launch measure, not testable inside the product): At least 90% of first-time users complete a plan on their first attempt without help.
 - **SC-003**: For every combination of size and pizza count, the ingredient amounts and ball weight match the reference calculation exactly, with the total dough equal to pizzas times ball weight.
 - **SC-004**: For every bake time that allows enough lead time, the schedule's last step ends exactly at the chosen bake time, and no fridge rest is shorter than 16 hours or longer than 24 hours.
 - **SC-005**: Every request that leaves too little time shows the earliest possible ready time; users never reach a blank error screen.
 - **SC-006**: When a timer ends with the page open, the user is alerted within 1 second of the end time, and within 2 seconds of returning if it ended while the page was hidden.
 - **SC-007**: After the page has loaded once, 100% of planning, schedule and step-by-step features work with the network off.
 - **SC-008**: Every control meets the minimum size and spacing, text meets the minimum sizes and contrast in both appearances, and a keyboard-only user can complete a plan and the first step.
-- **SC-009**: At least 80% of users who finish a plan say the dough was ready when they expected it, in follow-up feedback.
+- **SC-009** (post-launch measure, gathered by follow-up feedback): At least 80% of users who finish a plan say the dough was ready when they expected it, in follow-up feedback.
 - **SC-010**: No personal data is requested or sent anywhere during use.
 
 ## Assumptions
@@ -240,4 +240,4 @@ The cook can close the page and return later to the same plan and timers, share 
 - The minimum lead time from the first step to the bake is about 22 hours at the default timings.
 - Day choices cover Tomorrow and the next six days.
 - Out of scope for this version: alerts on a locked or closed page (needs a server), a button that sets the phone's own timer, accounts and saved history, other pizza styles, imperial units and step photos.
-- Dependencies: the project design system and constitution (v1.1.0) apply to all screens.
+- Dependencies: the project design system and constitution (v1.1.1) apply to all screens.

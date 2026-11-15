@@ -51,6 +51,10 @@ export async function expectTextSizes(page: Page): Promise<void> {
     document.querySelectorAll('.step-text').forEach((el) => {
       if (px(el) < 18) out.push(`.step-text is ${px(el)}px`);
     });
+    // rules.md: text under 16px must not carry amounts; chip captions hold ball weights and times.
+    document.querySelectorAll('.chip-sub, .ing-amount, .amount').forEach((el) => {
+      if (px(el) < 16) out.push(`${el.className} is ${px(el)}px`);
+    });
     document.querySelectorAll('.timer-digits').forEach((el) => {
       if (px(el) < 48) out.push(`.timer-digits is ${px(el)}px`);
     });

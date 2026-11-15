@@ -1,6 +1,6 @@
 // Schedule screen: plan summary, ingredient lists with tick-off, and the back-timed timeline.
 
-import { formatGrams, scaleIngredients } from '../../domain/amounts';
+import { formatGrams, isLargeBatch, scaleIngredients } from '../../domain/amounts';
 import type { IngredientGroup } from '../../domain/recipe';
 import { formatClock, formatDuration, formatWeekday, type Plan, type Step } from '../../domain/schedule';
 import { systemClock } from '../../platform/clock';
@@ -121,8 +121,13 @@ export function renderScheduleScreen(state: AppState): HTMLElement {
 
   const left = el('div', 'stack');
   left.style.gap = 'var(--space-5)';
+  const largeBatch = isLargeBatch(plan.totalGrams)
+    ? el('p', undefined, 'This is a lot of dough. A home mixer or bowl may not hold it, so mix it in two lots.')
+    : null;
+  if (largeBatch) largeBatch.dataset.slot = 'large-batch';
   left.append(
     renderSummary(plan),
+    ...(largeBatch ? [largeBatch] : []),
     el('p', undefined, `Ready to bake ${formatWeekday(plan.bakeAt)} ${formatClock(plan.bakeAt)}`),
   );
   const change = el('button', 'btn btn-secondary btn-block', 'Change choices');

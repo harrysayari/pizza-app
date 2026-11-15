@@ -103,7 +103,7 @@ button, input { font: inherit; color: inherit; }
   transition: transform var(--motion-fast) var(--ease-out), box-shadow var(--motion-fast) var(--ease-out), background-color var(--motion-fast) var(--ease-out);
 }
 .chip-line { display: inline-flex; align-items: center; gap: var(--space-1); }
-.chip-sub { font-size: 14px; line-height: 20px; font-weight: 400; color: var(--ink-muted); }
+.chip-sub { font-size: 16px; line-height: 20px; font-weight: 400; color: var(--ink-muted); }
 .chip-check { display: none; width: 6px; height: 12px; margin-right: var(--space-1); border: solid currentColor; border-width: 0 3px 3px 0; transform: translateY(-2px) rotate(45deg); }
 .chip-lg .chip-face { min-width: 96px; min-height: 80px; }
 .chip-lg .chip-main { font-family: var(--font-display); font-size: 26px; line-height: 32px; font-weight: 600; }

@@ -23,3 +23,13 @@ export function formatGrams(grams: number): string {
   if (grams < 9.95) return `${grams.toFixed(1)} g`;
   return `${Math.round(grams)} g`;
 }
+
+/**
+ * Above this total a home stand mixer or mixing bowl is unlikely to hold the dough (about 3 kg).
+ * Used only to show a plain note; it never changes an amount.
+ */
+export const LARGE_BATCH_GRAMS = 3000;
+
+export function isLargeBatch(totalGrams: number): boolean {
+  return totalGrams > LARGE_BATCH_GRAMS;
+}

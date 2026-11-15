@@ -10,7 +10,7 @@ A phone-first web page that turns four taps (pizza size, number of pizzas, bake 
 
 ## Technical Context
 
-**Language/Version**: TypeScript 5.x (strict), ES2022 output, Node.js 22 for tooling
+**Language/Version**: TypeScript (strict, installed 7.0.x), ES2022 output, Node.js 22 for tooling
 
 **Primary Dependencies**: None at runtime. Build and test only: Vite, TypeScript, Vitest, jsdom, Playwright with `@axe-core/playwright`, and the `@fontsource` packages for Fraunces and Atkinson Hyperlegible (bundled as local files)
 
@@ -32,7 +32,7 @@ A phone-first web page that turns four taps (pizza size, number of pizzas, bake 
 
 *GATE: Must pass before Phase 0 research. Re-checked after Phase 1 design.*
 
-Constitution v1.1.0.
+Constitution v1.1.1.
 
 | Principle | Status | How the plan satisfies it |
 |-----------|--------|---------------------------|
@@ -48,7 +48,7 @@ Constitution v1.1.0.
 
 **Gate result**: Passes. No unresolved violations.
 
-**Post-design re-check**: Passes. Design artifacts add no server, account or runtime dependency. One follow-up: the constitution's `TODO(TECH_STACK)` should be replaced by an amendment that records this stack (see Next steps).
+**Post-design re-check**: Passes. Design artifacts add no server, account or runtime dependency. The follow-up to record this stack in the constitution is done (v1.1.1).
 
 ## Project Structure
 
@@ -121,7 +121,6 @@ src/
 │   ├── slots/           # sentence.ts, too-soon.ts, schedule-actions.ts, menu.ts (story extension points)
 │   └── components/      # chip, stepper, text-field, toggle, timeline-item, ingredient-row, step-card, timer, banner
 ├── styles/
-│   ├── fonts.css        # @font-face for the two self-hosted fonts
 │   └── app.css          # layout only; tokens and components come from design/
 └── main.ts
 
@@ -144,6 +143,6 @@ tests/
 
 ## Next steps
 
-1. Run `/speckit-tasks` to turn this plan into ordered tasks.
-2. Amend the constitution to replace `TODO(TECH_STACK)` with this stack (a PATCH or MINOR bump), using `/speckit-constitution`.
+1. Done: tasks generated with `/speckit-tasks`.
+2. Done: the constitution records this stack (v1.1.1, PATCH).
 3. During the first implementation tasks, move the token generator from the working folder into `scripts/build-tokens.mjs`, record the real build, lint and test commands in `CLAUDE.md`, and add the two font files to `design/tokens.json`.

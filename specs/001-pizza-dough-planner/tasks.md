@@ -7,7 +7,7 @@ description: "Task list for the Pizza Dough Planner"
 
 **Input**: Design documents from `/specs/001-pizza-dough-planner/`
 
-**Prerequisites**: plan.md, spec.md, research.md, data-model.md, contracts/, quickstart.md. Constitution v1.1.0 applies to every task.
+**Prerequisites**: plan.md, spec.md, research.md, data-model.md, contracts/, quickstart.md. Constitution v1.1.1 applies to every task.
 
 **Tests**: Included. Constitution principle IV requires tests for each acceptance scenario, written first and seen failing before the code that satisfies them.
 
@@ -223,7 +223,10 @@ description: "Task list for the Pizza Dough Planner"
 
 - [x] T075 [P] Write `tests/e2e/privacy.spec.ts` (FR-029, SC-010): after the first load, record every network request during a full plan, step mode, share and calendar flow and fail on any request to another origin or any request after the page has loaded, apart from the service worker's own same-origin cache fills
 - [x] T076 [P] Add the alert-scope note to step mode ("Alerts play while this page is open. Calendar alarms cover a locked phone.") in `src/ui/components/timer.ts` and a test in `tests/e2e/steps.spec.ts` that no copy anywhere promises alerts on a locked or closed page (FR-022)
-- [ ] T077 Run `/speckit-analyze` again after the last wave and resolve any finding above LOW before T072
+- [x] T077 Run `/speckit-analyze` again after the last wave and resolve any finding above LOW before T072
+
+- [x] T078 Analysis finding C1: add `isLargeBatch` (over 3,000 g) to `src/domain/amounts.ts` and show a plain note on the schedule screen (`src/ui/screens/schedule.ts`), with unit tests in `tests/unit/amounts.test.ts` and e2e tests in `tests/e2e/plan.spec.ts`
+- [x] T079 Analysis finding C2: raise `.chip-sub` in `design/components.css` from 14px to 16px so ball weights meet `rules.md`, and make `expectTextSizes` check `.chip-sub`, `.ing-amount` and `.amount`
 
 ---
 

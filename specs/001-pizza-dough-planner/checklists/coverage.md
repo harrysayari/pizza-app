@@ -37,7 +37,7 @@ All 40 requirements have at least one test. Rows marked "added" had no direct te
 | FR-028 | Works offline once loaded | `offline.spec.ts` | Production build only |
 | FR-029 | No personal data, nothing sent | `privacy.spec.ts` (all three tests, added in T075) | |
 | FR-030 | Tap targets 48 px, 8 px apart | `expectTapTargets` in `plan`, `steps`, `too-soon`, `sentence`, `resume`, `shell` and `a11y.spec.ts` on every screen | |
-| FR-031 | Text 16 / 18 / 48 px | `expectTextSizes` in `plan.spec.ts`, `shell.spec.ts`, `steps.spec.ts` and `a11y.spec.ts` | partial: the 14 px chip captions carry ball weights; see "Observations" |
+| FR-031 | Text 16 / 18 / 48 px | `expectTextSizes` in `plan.spec.ts`, `shell.spec.ts`, `steps.spec.ts` and `a11y.spec.ts` | chip captions raised to 16 px (T079); `plan.spec.ts` "C2" and `expectTextSizes` check them |
 | FR-032 | WCAG AA contrast, light and dark | `expectNoAxeViolations` (both themes) on every screen and state in `a11y.spec.ts`; `build-tokens.mjs` runs 54 contrast checks | |
 | FR-033 | Accessible name, focus ring, keyboard and screen reader | `a11y.spec.ts`: names on every screen, focus indicator on every tab stop, keyboard-only plan and first step | Screen-reader speech is not tested; names and roles are |
 | FR-034 | No state by colour alone | `a11y.spec.ts` "FR-034" (selected tick, too-soon icon and words, ingredient tick and strike-through, Resting, Paused with bars, Time is up with tick, Done and Now badges) | |
@@ -57,5 +57,9 @@ SC-001 (taps): partly, `plan.spec.ts` defaults. SC-003 and SC-004: `amounts.test
 1. **Bottom bar (FR-036, `layout.md`)**: `layout.md` wants `Done, next step` in a bar fixed to the bottom edge. `src/ui/components/step-card.ts` wraps the buttons in a plain `div` and `design/components.css` has no bar class, so the bar is in normal page flow. `expectTapTargets` (in `tests/e2e/helpers.ts`) treats any two tappable rectangles closer than 8 px as a problem, so a fixed bar over scrolled content would be flagged. If the bar is built, the helper needs to skip a pair when one control is fixed or sticky.
 2. **Overdue current step (FR-040)**: `src/domain/estimate.ts` uses the last step marked done plus the planned durations after it. If the current step is overdue and not yet marked done, the estimate stays "On time" until Done is tapped. With nothing done yet it does account for lateness (`max(bakeAt, now + remaining)`). FR-040 says "based on the actual finish times and the remaining waits", so the code follows the text, but it is inconsistent with the nothing-done case.
 3. **Restored unstarted plan (edge case "Start time already passed")**: `planFromSaved` in `src/domain/saved.ts` marks a restored plan too soon when no step is done and the bake is less than the minimum lead away. This matches the spec edge case, but a cook who is working through the steps without tapping Done will see the too-soon note on reopening.
-4. **14 px captions**: size chips show the ball weight ("310 g") in `.chip-sub` at 14 px. `rules.md` forbids amounts in text below 16 px. This comes from the design system file `design/components.css`, not from the app.
+4. **14 px captions (fixed, T079)**: size chip captions were 14 px. `.chip-sub` in `design/components.css` is now 16 px, and `expectTextSizes` fails on any `.chip-sub`, `.ing-amount` or `.amount` under 16 px.
 5. **Font files**: the build emits and precaches the `latin-ext` and `vietnamese` subsets and the `.woff` fallbacks as well as the Latin `.woff2` files. `design/tokens.json` `type.fonts` lists only the three Latin `.woff2` files the app needs.
+
+## Edge case: largest batch
+
+Over 3,000 g of dough the schedule screen shows a plain note (T078). Tests: `amounts.test.ts` "isLargeBatch", `plan.spec.ts` "C1" (note at 12 pizzas, none at 4 pizzas of 14").
