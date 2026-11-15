@@ -125,3 +125,8 @@
 /* Timer-notification control. */
 .notify-state { display: flex; align-items: center; gap: var(--space-2); margin: 0; font-weight: 700; }
 .notify-icon { flex: none; }
+
+/* Copyright and version at the bottom of every screen. */
+.app-version { margin: var(--space-5) auto 0; padding: 0 var(--space-4) calc(var(--space-6) + env(safe-area-inset-bottom, 0px)); text-align: center; font-size: 14px; line-height: 20px; color: var(--ink-muted); }
+.app-version p { margin: 0; }
+.app-copyright { font-weight: 700; }

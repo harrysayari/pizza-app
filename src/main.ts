@@ -5,6 +5,7 @@ import '../design/tokens.css';
 import '../design/components.css';
 import './styles/app.css';
 
+import { askForNotificationsOnLoad } from './state/actions/notify';
 import { hydrate } from './state/hydrate';
 import { store } from './state/store';
 import { mountApp } from './ui/app';
@@ -14,6 +15,7 @@ hydrate(store);
 
 const root = document.getElementById('app');
 if (root) mountApp(root, store);
+askForNotificationsOnLoad(store);
 
 // Offline after first load: the service worker is registered in production builds only.
 try {

@@ -132,7 +132,7 @@ Some browsers refuse notifications, the user may tap "Block", an iPhone tab need
 **Notifications**
 
 - **FR-006**: The product MUST let the user turn timer notifications on and off with one control, reachable from the settings and from step mode.
-- **FR-007**: The browser's permission prompt MUST appear only after the user taps the control and confirms a short plain explanation. It MUST NOT appear on first load or without a tap.
+- **FR-007**: The browser's permission prompt MUST be requested when the page loads (changed by the owner from "only after a tap"). Browsers that only allow the prompt after a tap, such as iPhone Safari, MUST be asked on the first tap instead. A refusal MUST NOT be asked about again, and the control MUST still let the user turn notifications on or off later.
 - **FR-008**: The control MUST show one of four states in words and an icon: off, on, blocked, or not available, each with one next step. No state is a dead end.
 - **FR-009**: When notifications are on and a timer ends while the page is hidden, the product MUST show a system notification with the step name and "Time is up". If the user has not opened the app or acted on the alert 5 minutes later, the product MUST show the same notification once more, and MUST NOT repeat it again.
 - **FR-010**: Tapping the notification MUST bring the user to the app on that step with the alert showing.

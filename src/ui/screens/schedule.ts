@@ -74,7 +74,7 @@ function amountsText(step: Step): string {
 }
 
 // Which parts the cook has opened or closed. The whole screen is rebuilt on every state change,
-// so this lives here and is applied each time. Until a part is touched it follows the first undone step.
+// so this lives here and is applied each time. Every part starts closed until the cook opens it.
 const partOpen: Partial<Record<PartId, boolean>> = {};
 
 function windowText(startAt: number, endAt: number): string {
@@ -85,7 +85,6 @@ function windowText(startAt: number, endAt: number): string {
 function renderTimeline(plan: Plan, doneAt: Record<string, number>, now: number): HTMLElement {
   const wrap = el('div', 'tl-groups');
   wrap.setAttribute('aria-label', `Schedule for a ${formatWeekday(plan.bakeAt)} ${formatClock(plan.bakeAt)} bake`);
-  const firstUndone = plan.steps.find((s) => doneAt[s.id] === undefined)?.id;
   let nowFound = false;
   for (const part of planParts(plan)) {
     const list = el('ol', 'timeline');
@@ -112,8 +111,7 @@ function renderTimeline(plan: Plan, doneAt: Record<string, number>, now: number)
     }
 
     const group = el('details', 'tl-group');
-    const holdsNext = firstUndone === undefined ? false : part.steps.some((s) => s.id === firstUndone);
-    group.open = partOpen[part.id] ?? holdsNext;
+    group.open = partOpen[part.id] ?? false; // every part starts closed
     group.addEventListener('toggle', () => {
       partOpen[part.id] = group.open;
     });
@@ -172,9 +170,9 @@ export function renderScheduleScreen(state: AppState): HTMLElement {
   right.append(
     el('h2', undefined, 'Your steps'),
     el('p', 'tl-total', `Total ${formatDuration(totalMinutes)}, ${first ? windowText(first.startAt, plan.bakeAt) : ''}`),
-    renderTimeline(plan, state.doneAt, systemClock.now()),
   );
-  append(right, renderStartSteps());
+  append(right, renderStartSteps()); // at the top of the steps, above the parts
+  right.append(renderTimeline(plan, state.doneAt, systemClock.now()));
   append(right, renderCalendar());
 
   main.append(left, right);

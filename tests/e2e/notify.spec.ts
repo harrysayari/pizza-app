@@ -7,9 +7,10 @@ import { MIN, nextSteps, openSteps, setVisibility } from './steps-helpers';
 type Perm = 'default' | 'granted' | 'denied';
 
 /** A fake Notification the test controls; the answer to the browser prompt is `answer`. */
-async function stubNotification(page: Page, initial: Perm, answer: Perm = 'granted'): Promise<void> {
+async function stubNotification(page: Page, initial: Perm, answer: Perm = 'granted', dismiss = 0): Promise<void> {
+  // `dismiss`: the first N asks are dismissed (the user closes the prompt), and the permission stays undecided.
   await page.addInitScript(
-    ([start, reply]) => {
+    ([start, reply, dismissFirst]) => {
       const w = window as unknown as { __asked: number; Notification: unknown };
       w.__asked = Number(sessionStorage.getItem('asked') ?? '0');
       class FakeNotification {
@@ -19,13 +20,14 @@ async function stubNotification(page: Page, initial: Perm, answer: Perm = 'grant
         static requestPermission(): Promise<string> {
           w.__asked++;
           sessionStorage.setItem('asked', String(w.__asked));
+          if (w.__asked <= Number(dismissFirst)) return Promise.resolve('default');
           sessionStorage.setItem('perm', reply!);
           return Promise.resolve(reply!);
         }
       }
       w.Notification = FakeNotification;
     },
-    [initial, answer],
+    [initial, answer, String(dismiss)],
   );
 }
 
@@ -35,36 +37,62 @@ const control = (page: Page) => page.locator('[data-slot="notify-control"]');
 test.describe('control states (Android Chrome)', () => {
   test.skip(({ browserName }) => browserName !== 'chromium', 'the iPhone project is covered separately');
 
-  test('no permission prompt on load, navigation or opening the control (FR-007, SC-003)', async ({ page }) => {
+  test('the browser permission prompt is requested once when the page loads (FR-007)', async ({ page }) => {
     await stubNotification(page, 'default');
     await openSteps(page);
-    expect(await asked(page)).toBe(0);
-    await expect(control(page)).toHaveAttribute('data-state', 'off');
-    await expect(control(page)).toContainText('Notifications are off');
-    await page.getByRole('button', { name: 'Turn on notifications' }).click();
-    await expect(page.locator('[data-slot="notify-explain"]')).toBeVisible();
+    expect(await asked(page)).toBe(1);
+    await expect(control(page)).toHaveAttribute('data-state', 'on');
+    await expect(control(page)).toContainText('Notifications are on');
+  });
+
+  test('a refusal is respected: it is not asked again on later taps or navigation', async ({ page }) => {
+    await stubNotification(page, 'default', 'denied');
+    await openSteps(page);
+    await nextSteps(page, 2);
+    expect(await asked(page)).toBe(1);
+    await expect(control(page)).toHaveAttribute('data-state', 'blocked');
+  });
+
+  test('already blocked: nothing is asked', async ({ page }) => {
+    await stubNotification(page, 'denied');
+    await openSteps(page);
     expect(await asked(page)).toBe(0);
   });
 
-  test('three taps turn it on, and the prompt comes after the explanation', async ({ page }) => {
+  test('when the browser needs a tap to ask (iPhone Safari), the first tap asks', async ({ page }) => {
     await stubNotification(page, 'default');
+    await page.addInitScript(() => {
+      // Refuse to prompt without a user gesture: leave the permission undecided.
+      const N = (window as unknown as { Notification: { requestPermission: () => Promise<string> } }).Notification;
+      const real = N.requestPermission;
+      N.requestPermission = () => (navigator.userActivation.isActive ? real() : Promise.resolve('default'));
+    });
+    await page.goto('/');
+    expect(await asked(page)).toBe(0);
+    await page.locator('body').click({ position: { x: 5, y: 5 } });
+    await expect.poll(() => asked(page)).toBe(1);
+  });
+
+  test('three taps turn it on, and the prompt comes after the explanation', async ({ page }) => {
+    await stubNotification(page, 'default', 'granted', 2); // the prompt on load and on the first tap were dismissed
     await openSteps(page);
     await page.getByRole('button', { name: 'Turn on notifications' }).click(); // 1
     await page.getByRole('button', { name: 'Continue' }).click(); // 2 (the browser prompt is the 3rd)
     await expect(control(page)).toHaveAttribute('data-state', 'on');
-    expect(await asked(page)).toBe(1);
+    expect(await asked(page)).toBe(3); // load, first tap (both dismissed), then the real answer
     await expect(control(page)).toContainText('Notifications are on');
     await page.getByRole('button', { name: 'Turn off notifications' }).click();
     await expect(control(page)).toHaveAttribute('data-state', 'off');
   });
 
   test('"Not now" asks nothing and leaves it off', async ({ page }) => {
-    await stubNotification(page, 'default');
+    await stubNotification(page, 'default', 'granted', 2); // the prompt on load and on the first tap were dismissed
     await openSteps(page);
     await page.getByRole('button', { name: 'Turn on notifications' }).click();
+    const before = await asked(page);
     await page.getByRole('button', { name: 'Not now' }).click();
     await expect(control(page)).toHaveAttribute('data-state', 'off');
-    expect(await asked(page)).toBe(0);
+    expect(await asked(page)).toBe(before); // "Not now" itself asks nothing
   });
 
   test('blocked: says so and tells the user what to do', async ({ page }) => {
@@ -88,7 +116,7 @@ test.describe('control states (Android Chrome)', () => {
   });
 
   test('the choice is remembered, kept by Start a new plan and cleared by Clear saved data (FR-018)', async ({ page }) => {
-    await stubNotification(page, 'default');
+    await stubNotification(page, 'default', 'granted', 2); // the prompt on load and on the first tap were dismissed
     await openSteps(page);
     await page.getByRole('button', { name: 'Turn on notifications' }).click();
     await page.getByRole('button', { name: 'Continue' }).click();
@@ -109,7 +137,7 @@ test.describe('control states (Android Chrome)', () => {
   });
 
   test('every state meets the size, tap and contrast rules in both themes', async ({ page }) => {
-    await stubNotification(page, 'default');
+    await stubNotification(page, 'default', 'granted', 2); // the prompt on load and on the first tap were dismissed
     await openSteps(page);
     await expectTapTargets(page);
     await expectTextSizes(page);
@@ -124,7 +152,7 @@ test.describe('control states (Android Chrome)', () => {
   });
 
   test('the wording promises no delivery and names the calendar-alarm backup (FR-017, SC-008)', async ({ page }) => {
-    await stubNotification(page, 'default');
+    await stubNotification(page, 'default', 'granted', 2); // the prompt on load and on the first tap were dismissed
     await openSteps(page);
     await page.getByRole('button', { name: 'Turn on notifications' }).click();
     const text = (await page.locator('[data-slot="notify-explain"]').innerText()).toLowerCase();

@@ -11,6 +11,20 @@ import { renderAlertBanner } from './components/alert-banner';
 
 type Slot = string | Node;
 
+/** The page ends with the copyright and the build version, so you can check which build a phone has loaded. */
+function versionFooter(): HTMLElement {
+  const f = document.createElement('footer');
+  f.className = 'app-version';
+  const copy = document.createElement('p');
+  copy.className = 'app-copyright';
+  copy.textContent = `© ${new Date().getFullYear()} Design & Inspire Lab`;
+  const build = document.createElement('p');
+  build.className = 'app-build';
+  build.textContent = `Version ${typeof __BUILD_INFO__ === 'string' ? __BUILD_INFO__ : 'dev'}`;
+  f.append(copy, build);
+  return f;
+}
+
 function append(parent: HTMLElement, slot: Slot): void {
   if (typeof slot === 'string') {
     if (slot !== '') parent.insertAdjacentHTML('beforeend', slot);
@@ -42,6 +56,22 @@ function applyTheme(theme: AppState['preferences']['theme']): void {
   else html.setAttribute('data-theme', theme);
 }
 
+// Moving to another screen, another step or the settings starts at the top of the page. A redraw on the
+// same screen (ticking an ingredient, a timer tick) keeps the place. The first render is left alone, so a
+// reload keeps the browser's own scroll position.
+let lastView: string | null = null;
+
+function startAtTopOnNewView(view: string): void {
+  const changed = lastView !== null && lastView !== view;
+  lastView = view;
+  if (!changed) return;
+  try {
+    window.scrollTo(0, 0);
+  } catch {
+    // No scrolling in this environment.
+  }
+}
+
 /** Render the current screen into root now and on every state change. */
 export function mountApp(root: HTMLElement, store: Store): () => void {
   const render = (state: AppState): void => {
@@ -57,7 +87,8 @@ export function mountApp(root: HTMLElement, store: Store): () => void {
             onRemindLater: () => alertRemindLater(store),
           });
     if (isSettingsOpen()) {
-      root.replaceChildren(...(banner ? [banner] : []), renderSettingsScreen(state));
+      root.replaceChildren(...(banner ? [banner] : []), renderSettingsScreen(state), versionFooter());
+      startAtTopOnNewView('settings');
       return;
     }
     const screen = screens[state.progress.screen](state);
@@ -65,7 +96,8 @@ export function mountApp(root: HTMLElement, store: Store): () => void {
     if (!screen.querySelector('[data-slot="menu"]')) append(screen, renderMenu());
     const choice = renderShareChoice();
     if (choice instanceof Node) (screen.querySelector('h1') ?? screen).after(choice);
-    root.replaceChildren(...(banner ? [banner] : []), screen);
+    root.replaceChildren(...(banner ? [banner] : []), screen, versionFooter());
+    startAtTopOnNewView(`${state.progress.screen}:${state.progress.currentStepId ?? ''}`);
   };
   installTimerEffects(store);
   installAlertEffects(store);

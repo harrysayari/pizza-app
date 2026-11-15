@@ -139,6 +139,7 @@ export function preserveFocus(): void {
   if (!key) return;
   queueMicrotask(() => {
     const next = document.querySelector<HTMLElement>(`[data-key="${CSS.escape(key)}"]`);
-    if (next && !(next instanceof HTMLButtonElement && next.disabled)) next.focus();
+    // preventScroll: giving focus back must not move the page (a new screen starts at the top).
+    if (next && !(next instanceof HTMLButtonElement && next.disabled)) next.focus({ preventScroll: true });
   });
 }

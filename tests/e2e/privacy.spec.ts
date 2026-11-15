@@ -141,9 +141,12 @@ test('opening a shared link sends nothing but same-origin requests', async ({ pa
 test('using the notification control makes no request once the page has loaded', async ({ page, context, browserName }) => {
   test.skip(browserName !== 'chromium', 'WebKit shows the iPhone Home Screen note instead');
   await page.addInitScript(() => {
+    let asks = 0;
     class FakeNotification {
       static permission = 'default';
       static requestPermission(): Promise<string> {
+        // The prompts on load and on the first tap are dismissed; the control's prompt is answered.
+        if (++asks <= 2) return Promise.resolve('default');
         FakeNotification.permission = 'granted';
         return Promise.resolve('granted');
       }

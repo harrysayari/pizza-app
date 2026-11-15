@@ -180,10 +180,12 @@ test('FR-041: each part opens and closes with a tap or the keyboard, and stays t
   await planSaturdayDinner(page);
   const parts = page.locator('details.tl-group');
   const first = parts.nth(0);
+  await expect(first).not.toHaveAttribute('open', ''); // every part starts closed
+  await expect(first.locator('li.tl-item').first()).toBeHidden();
+  await first.locator('summary').click();
   await expect(first).toHaveAttribute('open', '');
   await first.locator('summary').click();
   await expect(first).not.toHaveAttribute('open', '');
-  await expect(first.locator('li.tl-item').first()).toBeHidden();
   // Ticking an ingredient redraws the whole screen; the closed part must stay closed.
   await page.locator('label.ing').first().click();
   await expect(page.locator('details.tl-group').nth(0)).not.toHaveAttribute('open', '');
@@ -191,6 +193,17 @@ test('FR-041: each part opens and closes with a tap or the keyboard, and stays t
   await page.locator('details.tl-group').nth(0).locator('summary').focus();
   await page.keyboard.press('Enter');
   await expect(page.locator('details.tl-group').nth(0)).toHaveAttribute('open', '');
+});
+
+test('the Start step-by-step button sits at the top of the steps, above the first part', async ({ page }) => {
+  await planSaturdayDinner(page);
+  const start = page.getByRole('button', { name: 'Start step-by-step' });
+  const firstPart = page.locator('details.tl-group').first();
+  const a = (await start.boundingBox())!;
+  const b = (await firstPart.boundingBox())!;
+  expect(a.y).toBeLessThan(b.y);
+  const heading = (await page.getByRole('heading', { name: 'Your steps' }).boundingBox())!;
+  expect(a.y).toBeGreaterThan(heading.y);
 });
 
 test('FR-041: part headers are at least 48px tall, text is 16px or more, and axe is clean in both themes', async ({ page }) => {

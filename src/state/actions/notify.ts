@@ -35,12 +35,48 @@ function setNotify(store: Store, on: boolean): void {
 }
 
 /** Ask the browser for permission, then turn notifications on if it was given. Call from a tap. */
+/**
+ * The automatic ask (on load and on the first tap). Unlike turnOn it redraws nothing when the prompt is
+ * dismissed, so it can never erase a choice the user is making at the same moment.
+ */
+async function askQuietly(store: Store): Promise<void> {
+  const result = await notifications.request();
+  if (result === 'granted') {
+    setNotify(store, true);
+    await syncReminders(store);
+  } else if (result === 'denied') store.update({}); // the control now says "blocked"
+}
+
 export async function turnOn(store: Store = appStore): Promise<void> {
   const result = await notifications.request();
   if (result === 'granted') {
     setNotify(store, true);
     await syncReminders(store);
   } else store.update({});
+}
+
+/**
+ * Ask for notification permission as soon as the page loads (owner's choice, replacing the earlier
+ * "only after a tap" rule). Chrome on Android and desktop show the prompt at once. iPhone Safari only
+ * shows it after a tap, so if the permission is still undecided the first tap on the page asks.
+ * It asks at most twice per page load, never when already allowed, blocked or unavailable, and a
+ * refusal is never asked about again.
+ */
+export function askForNotificationsOnLoad(store: Store = appStore): void {
+  try {
+    if (notifications.support() !== 'ok' || notifications.permission() !== 'default') return;
+    void askQuietly(store).then(() => {
+      if (notifications.permission() !== 'default') return;
+      // A `click` (not pointerdown) so the tap itself is handled first and Safari accepts the request.
+      const onTap = (): void => {
+        document.removeEventListener('click', onTap);
+        if (notifications.permission() === 'default') void askQuietly(store);
+      };
+      document.addEventListener('click', onTap);
+    });
+  } catch {
+    // The control on the step screen still lets the user turn them on.
+  }
 }
 
 export function turnOff(store: Store = appStore): void {
