@@ -95,12 +95,17 @@ src/
 ├── domain/              # pure logic, no DOM, no storage, no real clock
 │   ├── recipe.ts        # ingredients, steps, sizes, ball weights, chip times
 │   ├── amounts.ts       # scaling and gram formatting
-│   ├── schedule.ts      # buildPlan, earliestReady, estimateReady
+│   ├── schedule.ts      # buildPlan, minimumLeadMinutes
+│   ├── earliest.ts      # earliestReady (US3)
+│   ├── estimate.ts      # estimateReady (US2)
+│   ├── saved.ts         # stepsFromSaved (US6)
 │   ├── timer.ts         # timer state machine
 │   ├── request.ts       # parseRequest
 │   └── ics.ts           # buildIcs
 ├── state/
-│   ├── store.ts         # app state and actions
+│   ├── store.ts         # app state core
+│   ├── actions/         # plan.ts, timer.ts (one file per story, no shared edits)
+│   ├── hydrate.ts       # load saved state and shared link on start
 │   ├── persistence.ts   # saved-state read, write, clear, validate
 │   └── share-link.ts    # read and write the query string
 ├── platform/            # thin adapters, each behind an interface so tests can fake them
@@ -113,6 +118,7 @@ src/
 ├── ui/
 │   ├── app.ts
 │   ├── screens/         # plan.ts, schedule.ts, steps.ts, settings.ts
+│   ├── slots/           # sentence.ts, too-soon.ts, schedule-actions.ts, menu.ts (story extension points)
 │   └── components/      # chip, stepper, text-field, toggle, timeline-item, ingredient-row, step-card, timer, banner
 ├── styles/
 │   ├── fonts.css        # @font-face for the two self-hosted fonts

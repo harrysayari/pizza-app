@@ -155,7 +155,7 @@ The cook can close the page and return later to the same plan and timers, share 
 
 **Dough size and amounts**
 
-- **FR-006**: The product MUST use these dough ball weights: 12" = 280 g, 14" = about 310 g, 16" = about 350 g.
+- **FR-006**: The product MUST use these dough ball weights: 12" = 280 g, 14" = 310 g, 16" = 350 g.
 - **FR-007**: Total dough MUST equal the number of pizzas times the ball weight.
 - **FR-008**: Every ingredient MUST scale from the reference recipe in proportion to total dough divided by 1,230 g, with no allowance for loss.
 - **FR-009**: Amounts MUST be shown in grams, rounded to whole grams, except amounts under 10 g, which MUST be shown to one decimal place.
@@ -219,7 +219,7 @@ The cook can close the page and return later to the same plan and timers, share 
 
 ### Measurable Outcomes
 
-- **SC-001**: A first-time user can go from opening the page to seeing a full plan in under 30 seconds and no more than 6 taps.
+- **SC-001** (with 14" and 4 pizzas preselected and no day or time preselected): A first-time user can go from opening the page to seeing a full plan in under 30 seconds and no more than 6 taps.
 - **SC-002**: At least 90% of first-time users complete a plan on their first attempt without help.
 - **SC-003**: For every combination of size and pizza count, the ingredient amounts and ball weight match the reference calculation exactly, with the total dough equal to pizzas times ball weight.
 - **SC-004**: For every bake time that allows enough lead time, the schedule's last step ends exactly at the chosen bake time, and no fridge rest is shorter than 16 hours or longer than 24 hours.
