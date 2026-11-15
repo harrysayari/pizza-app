@@ -14,9 +14,9 @@ The app is plain files in `dist/`. No WordPress, database or server code is invo
 3. Copy everything inside `dist/` into the subdomain's folder, so `index.html` sits directly in it, not in a `dist` subfolder.
 4. Open `https://<subdomain>/` once the free certificate is active.
 
-## Why this works without changes
+## Where it can live
 
-A subdomain pointed at a folder serves that folder as its root, so the root paths in the build (`/assets/...`, `/sw.js`, `/manifest.webmanifest`) resolve. Do not move the app into a subfolder of a domain (for example `example.com/pizza/`) without first making the build path-relative.
+The build uses relative paths (`base: './'`), so the same files work at the root of a subdomain (`https://pizza.example.com/`) or in a subfolder of a domain (`https://example.com/pizza/`). Open the app with the trailing slash. If `/pizza` without the slash does not redirect to `/pizza/`, assets will not load; Apache normally adds the redirect for a real folder. The service worker's scope is the folder it is uploaded to.
 
 ## Updating
 
@@ -27,6 +27,6 @@ Run the build again, then upload everything in `dist/` over the old files. The s
 - Padlock shows, no mixed-content warnings.
 - Reload with the network off (airplane mode): the app still opens.
 - In a browser's developer tools, Application tab: service worker is activated and the manifest has no errors.
-- `https://<subdomain>/sw.js` loads, and its response header `Cache-Control` is `no-cache`.
+- `<app address>/sw.js` loads, and its response header `Cache-Control` is `no-cache`.
 - Run the real-device list at the end of `quickstart.md` on the deployed address.
 - If a WordPress caching or security plugin is active on the main site, confirm it does not apply to the subdomain.
