@@ -1,4 +1,4 @@
-/* Pizza Dough Planner — generated from tokens.json. Edit tokens.json, not this file. */
+/* Pizza Dough Planner: generated from tokens.json, do not edit. Run `npm run tokens`. */
 
 :root,
 [data-theme="light"] {
@@ -99,7 +99,7 @@
   --z-banner: 20;
   --z-sheet: 30;
   --z-toast: 40;
-  --font-display: "Fraunces", "Iowan Old Style", Georgia, serif;
+  --font-display: "Fraunces Variable", "Fraunces", "Iowan Old Style", Georgia, serif;
   --font-sans: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
   --motion-instant: 80ms;
   --motion-fast: 140ms;
