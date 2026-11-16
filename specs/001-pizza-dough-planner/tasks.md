@@ -219,7 +219,7 @@ description: "Task list for the Pizza Dough Planner"
 - [x] T071 [P] Check requirement coverage: every functional requirement FR-001 to FR-040 maps to at least one passing test. Add a short coverage table to `specs/001-pizza-dough-planner/checklists/coverage.md`, listing any requirement without a test and adding the missing test
 - [x] T072 Run the whole of `quickstart.md`: `npm run lint`, `npm test`, `npm run test:e2e`, `npm run build`, then scenarios 1 to 13 and fix what fails
 - [ ] T073 Check the real-device list at the end of `quickstart.md` on one iPhone and one Android phone, over HTTPS: calendar file hand-off, timer sound with the silent switch, locked-phone alert on return, home-screen install in airplane mode, and dark theme at low brightness. Record results in `specs/001-pizza-dough-planner/checklists/devices.md`, and add the iPhone "Copy calendar file" fallback if hand-off fails
-- [ ] T074 Deploy `dist/` to the DreamHost subdomain by SFTP following `specs/001-pizza-dough-planner/deploy-dreamhost.md` (includes `public/.htaccess`), and confirm the service worker, wake lock and speech detection work on the deployed address
+- [ ] T074 (deployed 2026-11-16 to `/pizza/`: page and `sw.js` answer, build 949871e live; the wake-lock and speech checks on a phone are still open) Deploy `dist/` to the DreamHost subdomain by SFTP following `specs/001-pizza-dough-planner/deploy-dreamhost.md` (includes `public/.htaccess`), and confirm the service worker, wake lock and speech detection work on the deployed address
 
 - [x] T075 [P] Write `tests/e2e/privacy.spec.ts` (FR-029, SC-010): after the first load, record every network request during a full plan, step mode, share and calendar flow and fail on any request to another origin or any request after the page has loaded, apart from the service worker's own same-origin cache fills
 - [x] T076 [P] Add the alert-scope note to step mode ("Alerts play while this page is open. Calendar alarms cover a locked phone.") in `src/ui/components/timer.ts` and a test in `tests/e2e/steps.spec.ts` that no copy anywhere promises alerts on a locked or closed page (FR-022)
@@ -230,6 +230,19 @@ description: "Task list for the Pizza Dough Planner"
 - [x] T080 FR-041: `planParts(plan)` in `src/domain/schedule.ts` returns four parts (Poolish; Rest; Make the final dough; Rest), each with a note and total minutes, with unit tests in `tests/unit/schedule.test.ts`
 - [x] T081 FR-041: the schedule screen shows the four parts in `details` groups with title, hours, note and start and end, plus a total line, styled in `src/styles/app.css` from tokens, with e2e tests in `tests/e2e/plan.spec.ts` (hours, open and close by tap and keyboard, state kept across a redraw, 48px headers, 16px text, axe)
 - [x] T082 FR-042: `src/ui/components/pizza-art.ts` draws a pizza from tokens, shown with the heading "Your dough is ready" on the all-steps-done screen in `src/ui/screens/steps.ts`, with an e2e test in `tests/e2e/steps.spec.ts`
+
+## Phase 11: Owner feedback after the first build (2026-11-16)
+
+Each task was built and tested before being written up here (spec sync). Tests are named in the task.
+
+- [x] T083 [US2] FR-043: `progressCrumbs` and `stepTimeText` in `src/domain/progress.ts` (reuses `planParts`), the `renderCrumbs` component in `src/ui/components/crumbs.ts`, styles in `design/components.css`, the live time in `src/ui/screens/steps.ts`. Tests: `tests/unit/progress.test.ts`; `steps.spec.ts` "breadcrumb"
+- [x] T084 [US2] FR-040: show only "N min behind. Ready about ..." when late; no "ahead" or "on time" line. Test: `steps.spec.ts` scenario 7
+- [x] T085 [US1] FR-041 and FR-044: all four parts start closed; the Start step-by-step button moves above them (`src/ui/screens/schedule.ts`). Tests: `plan.spec.ts` "each part opens and closes" and "Start step-by-step button sits at the top"
+- [x] T086 FR-045: new screens and steps start at the top (`src/ui/app.ts`); `preserveFocus` no longer scrolls (`src/state/actions/plan.ts`). Test: `tests/e2e/scroll-top.spec.ts`
+- [x] T087 FR-046: the copyright and build version footer (`src/ui/app.ts`, `vite.config.ts` `__BUILD_INFO__`). Test: `tests/e2e/version.spec.ts`
+- [x] T088 FR-047: the page and manifest load network-first with an offline fallback; the cache name is a hash of file contents (`public/sw.js`, `vite.config.ts`). Test: `tests/e2e/cache-update.spec.ts`
+- [x] T089 FR-048: relative base and paths, deploy script (`scripts/deploy.mjs`) uploads from a private copy of `dist/`. Tests: `offline.spec.ts`, `tests/unit/deploy.test.ts`
+- [ ] T090 Check on a real iPhone and Android phone: the breadcrumb at 360px, scroll to top after "Done, next step", the version line after an update (open the site twice)
 
 ---
 

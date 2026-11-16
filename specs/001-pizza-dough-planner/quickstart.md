@@ -44,6 +44,9 @@ Expected: all green. Details of what is covered: see the table below.
 | 11 | Offline | Load once, go offline, reload, plan and follow steps | Everything works | SC-007, FR-028 |
 | 12 | Share | Open a shared link on another browser | Size, count, day and time restored | FR-027 |
 | 13 | Accessibility | Axe in light and dark; tap-size and text-size checks; keyboard only | No violations; every control 48px or more; text sizes met | FR-030 to FR-036 |
+| 14 | Breadcrumb | On step 2, start the rest, advance 5 min | Breadcrumb Poolish (done) › Rest (current, "10 min more") › Final dough › Final rest | FR-043 |
+| 15 | Scroll to top | Scroll down a step screen, tap Done, next step | The next step starts at the top of the page | FR-045 |
+| 16 | Newest version | Deploy a new build, open the page online | The footer shows the new build time | FR-046, FR-047 |
 
 ## Device checks (manual, before release)
 

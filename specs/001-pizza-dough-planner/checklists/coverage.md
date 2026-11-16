@@ -1,6 +1,6 @@
 # Requirement Coverage: Pizza Dough Planner
 
-**Purpose**: Map every functional requirement (FR-001 to FR-040) to at least one automated test (task T071).
+**Purpose**: Map every functional requirement (FR-001 to FR-048) to at least one automated test (task T071).
 **Checked**: 2026-11-15, after Waves 0 to 4 and the Lane J tests. Unit tests are in `tests/unit/`, end-to-end tests in `tests/e2e/` (Chromium and WebKit).
 
 All 40 requirements have at least one test. Rows marked "added" had no direct test before T071 and gained one. Rows marked "partial" are covered, but a part of the requirement cannot be proven by the suite; the last column says what.
@@ -48,6 +48,12 @@ All 40 requirements have at least one test. Rows marked "added" had no direct te
 | FR-039 | Missing saved data: start screen, shared link restores | `resume.spec.ts` "missing, broken or unknown saved data", "a link with a past or far day..." | |
 | FR-041 | Steps in four collapsible parts with hours | `schedule.test.ts` "planParts"; `plan.spec.ts` three "FR-041" tests (four parts and hours, open and close, redraw, 48 px, axe) | Added after the first analysis |
 | FR-042 | Pizza drawing and "Your dough is ready" when all steps are done | `steps.spec.ts` "when the dough is ready..." (heading, hidden from screen readers, follows the theme); `a11y.spec.ts` all-done state | Added after the first analysis |
+| FR-043 | Progress breadcrumb with the time for the current part | `progress.test.ts` (parts and states, time text); `steps.spec.ts` "breadcrumb" | Added 2026-11-16 |
+| FR-044 | Start step-by-step above the parts | `plan.spec.ts` "Start step-by-step button sits at the top" | Added 2026-11-16 |
+| FR-045 | New screen or step starts at the top | `scroll-top.spec.ts` (Make my plan, Start, Done, Back, Settings, Change choices; a tick keeps the place) | Added 2026-11-16 |
+| FR-046 | Copyright and build version on every screen | `version.spec.ts` | Added 2026-11-16 |
+| FR-047 | Newest page when online | `cache-update.spec.ts` (Chromium only; WebKit cannot intercept service worker requests) | Added 2026-11-16; partial |
+| FR-048 | Works at the root or a sub-path | `offline.spec.ts`; the live site at `/pizza/` | Added 2026-11-16; partial (a sub-path is checked by hand) |
 | FR-040 | Fixed plan times, updated estimate, minutes ahead or behind | `estimate.test.ts`; `steps.spec.ts` scenario 7 | See "Observations" on an overdue current step |
 
 ## Success criteria with automated checks

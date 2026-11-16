@@ -10,6 +10,17 @@
 
 ## Clarifications
 
+### Session 2026-11-16
+
+Decisions made by the owner while trying the built app. Each one changed the app first and is recorded here.
+
+- Q: What should sit under the "Step by step" heading? → A: A breadcrumb of the four parts (Poolish › Rest › Final dough › Final rest) with the time for the part you are in, in place of the old on-time or ahead line. The "behind" line stays, shown only when running late.
+- Q: Should the schedule's parts start open or closed? → A: All closed. Where does "Start step-by-step" go? At the top of the steps, above the parts.
+- Q: Where should the page be after "Done, next step" and other moves? → A: At the top, on every new screen or step.
+- Q: What should the page end with? → A: "© <year> Design & Inspire Lab" and a build version line, so a phone can show which build it has loaded.
+- Q: What if a phone still shows an old version? → A: Online, the page always comes from the network first, and the offline copy is only a fallback.
+- Q: Where is the app hosted? → A: A folder of the owner's own website (a sub-path), so the app must work at the site root or under a sub-path.
+
 ### Session 2026-11-15
 
 - Q: Should ingredients scale from about 1,120 g of usable dough or the full 1,230 g the recipe adds up to? → A: The full 1,230 g. One reference batch makes four balls of about 307 g, with no loss assumed, so ingredients = recipe amounts × (total dough ÷ 1,230 g).
@@ -167,14 +178,20 @@ The cook can close the page and return later to the same plan and timers, share 
 - **FR-012**: The schedule MUST follow the reference recipe's order and waiting times, and keep the fridge rest between 16 and 24 hours.
 - **FR-013**: If the chosen bake time leaves less than the minimum lead time (about 22 hours), the product MUST show the earliest possible ready time with a one-tap way to use it, and MUST NOT show an error dead end.
 - **FR-014**: Changing any choice MUST update the amounts and times immediately.
-- **FR-041**: The schedule's steps MUST be shown in four parts that the user can open and close: Part 1, Poolish (mix the poolish); Part 2, Rest (on the counter, in the fridge, then out of the fridge for an hour); Part 3, Make the final dough (flours, salt water, mix, work into a ball); and Part 4, Rest (rest, shape, cut and prove until bake time). Each part MUST show its total time in hours and minutes and when it starts and ends, and the schedule MUST show the total time from the first step to the bake. Opening or closing a part MUST NOT change any time, and MUST be kept when the screen redraws.
+- **FR-041**: The schedule's steps MUST be shown in four parts that the user can open and close: Part 1, Poolish (mix the poolish); Part 2, Rest (on the counter, in the fridge, then out of the fridge for an hour); Part 3, Make the final dough (flours, salt water, mix, work into a ball); and Part 4, Rest (rest, shape, cut and prove until bake time). Each part MUST show its total time in hours and minutes and when it starts and ends, and the schedule MUST show the total time from the first step to the bake. All four parts MUST start closed. Opening or closing a part MUST NOT change any time, and MUST be kept when the screen redraws.
 - **FR-042**: When every step is done, step-by-step mode MUST say "Your dough is ready" and show a decorative pizza drawing that uses the colour tokens in both themes. The drawing MUST be hidden from screen readers, because the heading says the same thing in words.
+- **FR-043**: Step-by-step mode MUST show a progress breadcrumb under its heading with the four parts of FR-041 in order, named Poolish, Rest, Final dough and Final rest. Finished parts MUST show a tick and the word "done" for screen readers, and the current part MUST be marked as current and show the time for the current step: its planned length before it starts (for example "15 min" or "18 hr"), the time left while its timer runs or is paused (for example "10 min more", or "under 1 min more" in the last minute), and "Time is up" when it ends. The time MUST update as the countdown runs. When every step is done, all four parts MUST show as done.
+- **FR-044**: On the schedule screen, the "Start step-by-step" button MUST sit at the top of the steps, below the "Your steps" heading and the total time and above the four parts.
+- **FR-045**: Moving to another screen (plan, schedule, step-by-step, settings) or to another step MUST start at the top of the page. A redraw on the same screen, such as ticking an ingredient or a timer tick, MUST keep the user's place, and the first load MUST NOT force a scroll.
+- **FR-046**: Every screen MUST end with the copyright line "© <current year> Design & Inspire Lab" and a version line giving the build time and build identifier.
+- **FR-047**: When the device is online, the product MUST load the newest version of the page each time it opens, and use its offline copy only when the network fails. Files whose names change with every build MAY be taken from the offline copy first.
+- **FR-048**: The product MUST work when served from the root of a site or from a sub-path of it, without a rebuild.
 
 **Step-by-step mode**
 
 - **FR-015**: Users MUST be able to follow the plan one step per screen, each showing a title, an instruction, the scaled amounts for that step, and its position out of the total.
 - **FR-016**: Waiting steps of 2 hours or less MUST offer a countdown the user starts with one tap, with controls to pause, add a minute, and finish early. Waiting steps longer than 2 hours MUST instead show the day and time to come back, and rely on the calendar alarm.
-- **FR-040**: The planned step times MUST stay fixed. When the user marks steps done, step-by-step mode MUST show an updated estimate of when the dough will be ready, based on the actual finish times and the remaining waits, and how many minutes ahead or behind the plan the user is.
+- **FR-040**: The planned step times MUST stay fixed. When the user marks steps done, step-by-step mode MUST show an updated estimate of when the dough will be ready, based on the actual finish times and the remaining waits, and, when the user is running late, how many minutes behind the plan they are. The product MUST NOT show an "ahead" or "on time" line.
 - **FR-017**: When a countdown ends while the page is open, the product MUST play a sound, vibrate where the device supports it, and show a finished state with the words "Time is up".
 - **FR-018**: The product MUST NOT play any sound before the user's first tap on the page.
 - **FR-019**: Users MUST be able to mute the sound at any time, and the choice MUST be remembered.
@@ -240,6 +257,7 @@ The cook can close the page and return later to the same plan and timers, share 
 - The first-stage ingredient list uses honey as in the flowchart. One note on the source board mentions salt in that stage; it has not been checked against the video.
 - A planning default of 18 hours in the fridge is used unless the bake time forces a value between 16 and 24 hours.
 - The minimum lead time from the first step to the bake is about 22 hours at the default timings.
-- Day choices cover Tomorrow and the next six days.
+- Day choices cover Tomorrow and the next six days (seven chips).
+- Hosting: static files only, uploaded by SFTP to a folder of the owner's own website (`/pizza/`). See `deploy-dreamhost.md`.
 - Out of scope for this version: alerts on a locked or closed page (needs a server), a button that sets the phone's own timer, accounts and saved history, other pizza styles, imperial units and step photos.
-- Dependencies: the project design system and constitution (v1.2.1) apply to all screens.
+- Dependencies: the project design system and constitution (v1.2.1) apply to all screens. Timer notifications and the reminder service are specified separately in `specs/002-timer-notifications/`.
