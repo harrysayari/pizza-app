@@ -180,7 +180,7 @@ The cook can close the page and return later to the same plan and timers, share 
 - **FR-014**: Changing any choice MUST update the amounts and times immediately.
 - **FR-041**: The schedule's steps MUST be shown in four parts that the user can open and close: Part 1, Poolish (mix the poolish); Part 2, Rest (on the counter, in the fridge, then out of the fridge for an hour); Part 3, Make the final dough (flours, salt water, mix, work into a ball); and Part 4, Rest (rest, shape, cut and prove until bake time). Each part MUST show its total time in hours and minutes and when it starts and ends, and the schedule MUST show the total time from the first step to the bake. All four parts MUST start closed. Opening or closing a part MUST NOT change any time, and MUST be kept when the screen redraws.
 - **FR-042**: When every step is done, step-by-step mode MUST say "Your dough is ready" and show a decorative pizza drawing that uses the colour tokens in both themes. The drawing MUST be hidden from screen readers, because the heading says the same thing in words.
-- **FR-043**: Step-by-step mode MUST show a progress breadcrumb under its heading with the four parts of FR-041 in order, named Poolish, Rest, Final dough and Final rest. Finished parts MUST show a tick and the word "done" for screen readers, and the current part MUST be marked as current and show the time for the current step: its planned length before it starts (for example "15 min" or "18 hr"), the time left while its timer runs or is paused (for example "10 min more", or "under 1 min more" in the last minute), and "Time is up" when it ends. The time MUST update as the countdown runs. When every step is done, all four parts MUST show as done.
+- **FR-043**: Step-by-step mode MUST show a progress breadcrumb under its heading with the four parts of FR-041 in order, named Poolish, Rest, Final dough and Final rest (the short names of Part 1, Part 2, Part 3 and Part 4 in FR-041). Finished parts MUST show a tick and the word "done" for screen readers, and the current part MUST be marked as current and show the time for the current step: its planned length before it starts (for example "15 min" or "18 hr"), the time left while its timer runs or is paused (for example "10 min more", or "under 1 min more" in the last minute), and "Time is up" when it ends. The time MUST update as the countdown runs. When every step is done, all four parts MUST show as done.
 - **FR-044**: On the schedule screen, the "Start step-by-step" button MUST sit at the top of the steps, below the "Your steps" heading and the total time and above the four parts.
 - **FR-045**: Moving to another screen (plan, schedule, step-by-step, settings) or to another step MUST start at the top of the page. A redraw on the same screen, such as ticking an ingredient or a timer tick, MUST keep the user's place, and the first load MUST NOT force a scroll.
 - **FR-046**: Every screen MUST end with the copyright line "© <current year> Design & Inspire Lab" and a version line giving the build time and build identifier.
@@ -212,12 +212,12 @@ The cook can close the page and return later to the same plan and timers, share 
 - **FR-039**: If saved data is missing when the page opens (cleared by the device, or a private window), the product MUST show the start screen and, if opened from a shared link, restore the size, count, day and time from the link.
 - **FR-027**: Users MUST be able to share or bookmark a link that restores the same size, count, day and time.
 - **FR-028**: Once loaded, planning, the schedule and step-by-step mode MUST work without a network connection.
-- **FR-029**: The product MUST NOT collect personal data or send plans to any server.
+- **FR-029**: The product MUST NOT collect personal data or send plans to any server. The one exception is the opt-in timer reminder service of feature 002, which a user must turn on and which receives only a notification address, a timer's end time and a step name, never a plan.
 
 **Usability and accessibility**
 
 - **FR-030**: Every tappable control MUST be at least 48px by 48px and at least 8px from the next control.
-- **FR-031**: Body text MUST be at least 16px, step instructions at least 18px, and countdown digits at least 48px.
+- **FR-031**: Body text MUST be at least 16px, step instructions at least 18px, and countdown digits at least 48px. "Body text" means any text the user reads in order to act: instructions, amounts, weights, times, button and chip labels, notes, messages and the footer. Short secondary captions that only repeat or label something shown nearby (for example a unit, a step count or a day name above a time) MAY be 14px, MUST NOT be the only place information needed to act appears, and MUST NOT be smaller than 14px.
 - **FR-032**: Text MUST meet WCAG AA contrast in both a light and a dark appearance.
 - **FR-033**: Every control MUST have an accessible name, a visible focus indicator, and be usable by keyboard and screen reader.
 - **FR-034**: No state (selected, done, running, paused, too soon) MUST be shown by colour alone.
@@ -247,7 +247,7 @@ The cook can close the page and return later to the same plan and timers, share 
 - **SC-007**: After the page has loaded once, 100% of planning, schedule and step-by-step features work with the network off.
 - **SC-008**: Every control meets the minimum size and spacing, text meets the minimum sizes and contrast in both appearances, and a keyboard-only user can complete a plan and the first step.
 - **SC-009** (post-launch measure, gathered by follow-up feedback): At least 80% of users who finish a plan say the dough was ready when they expected it, in follow-up feedback.
-- **SC-010**: No personal data is requested or sent anywhere during use.
+- **SC-010**: No personal data is requested or sent anywhere during use, and for a user who has not turned on timer notifications, nothing is sent anywhere after the page has loaded.
 
 ## Assumptions
 
@@ -257,7 +257,7 @@ The cook can close the page and return later to the same plan and timers, share 
 - The first-stage ingredient list uses honey as in the flowchart. One note on the source board mentions salt in that stage; it has not been checked against the video.
 - A planning default of 18 hours in the fridge is used unless the bake time forces a value between 16 and 24 hours.
 - The minimum lead time from the first step to the bake is about 22 hours at the default timings.
-- Day choices cover Tomorrow and the next six days (seven chips).
+- Day choices cover Tomorrow through six days after tomorrow (seven chips).
 - Hosting: static files only, uploaded by SFTP to a folder of the owner's own website (`/pizza/`). See `deploy-dreamhost.md`.
-- Out of scope for this version: alerts on a locked or closed page (needs a server), a button that sets the phone's own timer, accounts and saved history, other pizza styles, imperial units and step photos.
+- Out of scope for this feature: alerts on a locked or closed page (they are the optional opt-in service of feature 002, `specs/002-timer-notifications/`), a button that sets the phone's own timer, accounts and saved history, other pizza styles, imperial units and step photos.
 - Dependencies: the project design system and constitution (v1.2.1) apply to all screens. Timer notifications and the reminder service are specified separately in `specs/002-timer-notifications/`.

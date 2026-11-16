@@ -218,7 +218,7 @@ description: "Task list for the Pizza Dough Planner"
 - [x] T070 Amend the constitution with `/speckit-constitution` to replace `TODO(TECH_STACK)` with this stack (TypeScript, Vite, Vitest, Playwright, no runtime dependencies) and remove the Sync Impact Report comment before committing
 - [x] T071 [P] Check requirement coverage: every functional requirement FR-001 to FR-040 maps to at least one passing test. Add a short coverage table to `specs/001-pizza-dough-planner/checklists/coverage.md`, listing any requirement without a test and adding the missing test
 - [x] T072 Run the whole of `quickstart.md`: `npm run lint`, `npm test`, `npm run test:e2e`, `npm run build`, then scenarios 1 to 13 and fix what fails
-- [ ] T073 Check the real-device list at the end of `quickstart.md` on one iPhone and one Android phone, over HTTPS: calendar file hand-off, timer sound with the silent switch, locked-phone alert on return, home-screen install in airplane mode, and dark theme at low brightness. Record results in `specs/001-pizza-dough-planner/checklists/devices.md`, and add the iPhone "Copy calendar file" fallback if hand-off fails
+- [ ] T073 (also covers the FR-043 to FR-047 phone checks: the breadcrumb at 360px, scroll to top after "Done, next step", and the version line after an update, opening the site twice) Check the real-device list at the end of `quickstart.md` on one iPhone and one Android phone, over HTTPS: calendar file hand-off, timer sound with the silent switch, locked-phone alert on return, home-screen install in airplane mode, and dark theme at low brightness. Record results in `specs/001-pizza-dough-planner/checklists/devices.md`, and add the iPhone "Copy calendar file" fallback if hand-off fails
 - [ ] T074 (deployed 2026-11-16 to `/pizza/`: page and `sw.js` answer, build 949871e live; the wake-lock and speech checks on a phone are still open) Deploy `dist/` to the DreamHost subdomain by SFTP following `specs/001-pizza-dough-planner/deploy-dreamhost.md` (includes `public/.htaccess`), and confirm the service worker, wake lock and speech detection work on the deployed address
 
 - [x] T075 [P] Write `tests/e2e/privacy.spec.ts` (FR-029, SC-010): after the first load, record every network request during a full plan, step mode, share and calendar flow and fail on any request to another origin or any request after the page has loaded, apart from the service worker's own same-origin cache fills
@@ -242,7 +242,7 @@ Each task was built and tested before being written up here (spec sync). Tests a
 - [x] T087 FR-046: the copyright and build version footer (`src/ui/app.ts`, `vite.config.ts` `__BUILD_INFO__`). Test: `tests/e2e/version.spec.ts`
 - [x] T088 FR-047: the page and manifest load network-first with an offline fallback; the cache name is a hash of file contents (`public/sw.js`, `vite.config.ts`). Test: `tests/e2e/cache-update.spec.ts`
 - [x] T089 FR-048: relative base and paths, deploy script (`scripts/deploy.mjs`) uploads from a private copy of `dist/`. Tests: `offline.spec.ts`, `tests/unit/deploy.test.ts`
-- [ ] T090 Check on a real iPhone and Android phone: the breadcrumb at 360px, scroll to top after "Done, next step", the version line after an update (open the site twice)
+- [x] T090 Merged into T073 (no separate check)
 
 ---
 

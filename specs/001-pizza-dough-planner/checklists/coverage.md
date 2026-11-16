@@ -51,7 +51,7 @@ All 40 requirements have at least one test. Rows marked "added" had no direct te
 | FR-043 | Progress breadcrumb with the time for the current part | `progress.test.ts` (parts and states, time text); `steps.spec.ts` "breadcrumb" | Added 2026-11-16 |
 | FR-044 | Start step-by-step above the parts | `plan.spec.ts` "Start step-by-step button sits at the top" | Added 2026-11-16 |
 | FR-045 | New screen or step starts at the top | `scroll-top.spec.ts` (Make my plan, Start, Done, Back, Settings, Change choices; a tick keeps the place) | Added 2026-11-16 |
-| FR-046 | Copyright and build version on every screen | `version.spec.ts` | Added 2026-11-16 |
+| FR-046 | Copyright and build version on every screen | `version.spec.ts` (plan, step and settings screens; text is 16px) | Added 2026-11-16 |
 | FR-047 | Newest page when online | `cache-update.spec.ts` (Chromium only; WebKit cannot intercept service worker requests) | Added 2026-11-16; partial |
 | FR-048 | Works at the root or a sub-path | `offline.spec.ts`; the live site at `/pizza/` | Added 2026-11-16; partial (a sub-path is checked by hand) |
 | FR-040 | Fixed plan times, updated estimate, minutes ahead or behind | `estimate.test.ts`; `steps.spec.ts` scenario 7 | See "Observations" on an overdue current step |

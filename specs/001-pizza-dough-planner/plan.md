@@ -24,9 +24,11 @@ A phone-first web page that turns four taps (pizza size, number of pizzas, bake 
 
 **Performance Goals**: Interactive in under 2 seconds on a mid-range phone over slow 4G; JavaScript under 50 KB gzipped; a plan computes in under 50 ms; timer alert within 1 second of its end time (SC-006)
 
-**Constraints**: Works fully offline after first load; no network request during use; no accounts or personal data; touch targets 48px or larger; light and dark themes; WCAG AA; honours reduced motion
+**Constraints**: Works fully offline after first load; no network request during use unless the user turns on timer reminders (feature 002); no accounts or personal data; touch targets 48px or larger; light and dark themes; WCAG AA; honours reduced motion
 
 **Scale/Scope**: One recipe (14 steps), 3 sizes, 1 to 12 pizzas, 3 screens (Plan, Schedule, Step mode) plus a small settings and reset area
+
+**Requirements added after the first build (FR-043 to FR-048)**: the progress breadcrumb (`domain/progress.ts`, `components/crumbs.ts`), the Start button above the closed parts and scroll to top on a new screen or step (`ui/app.ts`, `ui/screens/schedule.ts`), the copyright and build version footer, network-first loading of the page (`public/sw.js`), and sub-path-safe relative paths with a deploy that uploads a private copy of `dist/`.
 
 ## Constitution Check
 
@@ -75,7 +77,7 @@ specs/001-pizza-dough-planner/
 index.html
 package.json
 tsconfig.json
-vite.config.ts           # includes the small plugin that lists built files for the service worker
+vite.config.ts           # the plugin that lists built files for the service worker (cache name from file contents), and the build version (FR-046)
 playwright.config.ts
 
 design/                  # already present; the design system, copied from the published page
@@ -84,7 +86,9 @@ design/                  # already present; the design system, copied from the p
 └── components.css
 
 scripts/
-└── build-tokens.mjs     # tokens.json to tokens.css, plus the contrast check
+├── build-tokens.mjs     # tokens.json to tokens.css, plus the contrast check
+├── check-budget.mjs     # gzip size limit and no root-absolute URLs (FR-048)
+└── deploy.mjs           # SFTP upload from a private copy of dist/ (deploy-dreamhost.md)
 
 public/
 ├── manifest.webmanifest
@@ -100,6 +104,9 @@ src/
 │   ├── estimate.ts      # estimateReady (US2)
 │   ├── saved.ts         # stepsFromSaved (US6)
 │   ├── timer.ts         # timer state machine
+│   ├── progress.ts      # breadcrumb parts and the time shown on the current part (FR-043)
+│   ├── alert.ts         # the in-page timer alert (feature 002)
+│   ├── reminders.ts     # which reminders to send (feature 002)
 │   ├── request.ts       # parseRequest
 │   └── ics.ts           # buildIcs
 ├── state/
@@ -114,15 +121,19 @@ src/
 │   ├── vibration.ts
 │   ├── wake-lock.ts
 │   ├── speech.ts
+│   ├── notifications.ts # permission, show, push subscription (feature 002; asked on load, FR-007 of 002)
 │   └── calendar-file.ts
 ├── ui/
 │   ├── app.ts
 │   ├── screens/         # plan.ts, schedule.ts, steps.ts, settings.ts
 │   ├── slots/           # sentence.ts, too-soon.ts, schedule-actions.ts, menu.ts (story extension points)
-│   └── components/      # chip, stepper, text-field, toggle, timeline-item, ingredient-row, step-card, timer, banner
+│   └── components/      # chip, stepper, text-field, toggle, timeline-item, ingredient-row, step-card, timer, banner, crumbs, alert-banner, pizza-art
 ├── styles/
 │   └── app.css          # layout only; tokens and components come from design/
+├── build-info.d.ts      # the build version value set by vite.config.ts
 └── main.ts
+
+service/                 # feature 002 only: the optional PHP reminder service (not part of the static app)
 
 tests/
 ├── unit/                # domain, parser, calendar file, persistence

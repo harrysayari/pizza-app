@@ -68,7 +68,7 @@ A wait step counts as "long" when it exceeds 120 minutes (only step 4).
 |-------|------|------|
 | `size` | `12 \| 14 \| 16` | required |
 | `pizzas` | integer | 1 to 12 |
-| `day` | local date `YYYY-MM-DD` | tomorrow or one of the next six days at the time of choosing |
+| `day` | local date `YYYY-MM-DD` | tomorrow through six days after tomorrow (7 days) at the time of choosing |
 | `time` | `lunch \| early \| dinner` | required |
 
 ### Plan (derived from Request and the clock)

@@ -41,7 +41,7 @@ export async function expectTapTargets(page: Page): Promise<void> {
   expect(problems, problems.join('\n')).toEqual([]);
 }
 
-/** Body text at least 16px; .step-text at least 18px; .timer-digits at least 48px. */
+/** Body text at least 16px; .step-text at least 18px; .timer-digits at least 48px; no text under 14px (FR-031). */
 export async function expectTextSizes(page: Page): Promise<void> {
   const problems = await page.evaluate(() => {
     const px = (el: Element) => parseFloat(getComputedStyle(el).fontSize);
@@ -57,6 +57,18 @@ export async function expectTextSizes(page: Page): Promise<void> {
     });
     document.querySelectorAll('.timer-digits').forEach((el) => {
       if (px(el) < 48) out.push(`.timer-digits is ${px(el)}px`);
+    });
+    // FR-031: nothing the user can read is smaller than the 14px caption size, and the footer is body text.
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+      const parent = n.parentElement;
+      if (!parent || !(n.textContent ?? '').trim()) continue;
+      const style = getComputedStyle(parent);
+      if (style.display === 'none' || style.visibility === 'hidden' || parent.closest('svg, .sr-only')) continue;
+      if (px(parent) < 14) out.push(`"${(n.textContent ?? '').trim().slice(0, 30)}" is ${px(parent)}px`);
+    }
+    document.querySelectorAll('.app-version p').forEach((el) => {
+      if (px(el) < 16) out.push(`footer line is ${px(el)}px`);
     });
     return out;
   });

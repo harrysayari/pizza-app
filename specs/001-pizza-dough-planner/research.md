@@ -37,7 +37,7 @@ Planning durations: poolish mix 3 min, uncovered rest 15 min, sealed rest 60 min
 
 ## R5. Offline
 
-- **Decision**: A small hand-written service worker that precaches every built file (list injected at build time) and serves from cache first. A web app manifest makes home-screen install optional.
+- **Decision**: A small hand-written service worker that precaches every built file (list injected at build time) and serves hashed build files from the offline copy first, while the page and manifest load from the network first with the offline copy as the fallback (spec FR-047), so a phone that is online never shows an old page. A web app manifest makes home-screen install optional.
 - **Rationale**: Constitution VII. Hand-written avoids a Workbox dependency for one fixed set of files. The service worker needs HTTPS (or localhost).
 - **Alternatives considered**: `vite-plugin-pwa` (extra dependency for a fixed asset list).
 - **Update rule**: A new build gets a new cache name; the old cache is deleted on activate. The page shows nothing about updates, and the new version applies on next full reload.
